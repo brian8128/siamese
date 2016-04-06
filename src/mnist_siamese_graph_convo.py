@@ -21,7 +21,8 @@ from keras import backend as K
 from keras.regularizers import l2, activity_l2, l1l2
 from keras.layers import Convolution2D, MaxPooling2D
 
-from settings import NB_EPOCH
+from settings import NB_EPOCH_CONV
+from settings import NB_CONV_FILTERS
 
 from src import data_reader
 
@@ -80,7 +81,7 @@ def create_base_network(input_shape):
     '''Base network to be shared (eq. to feature extraction).
     '''
     seq = Sequential()
-    seq.add(Convolution2D(8, 10, 1,
+    seq.add(Convolution2D(NB_CONV_FILTERS, 10, 1,
                             border_mode='valid',
                             activation='relu',
                             input_shape=input_shape
@@ -117,7 +118,7 @@ X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 
 input_shape = (9, 128, 1)
-nb_epoch = NB_EPOCH
+nb_epoch = NB_EPOCH_CONV
 
 # create training+test positive and negative pairs
 
