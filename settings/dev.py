@@ -5,5 +5,5 @@ PROJECT_HOME = "/Users/Brian/workplace/projects/siamese/"
 NB_EPOCH = 10
 
 # Settings for cnn
-NB_EPOCH_CONV = 15
-NB_CONV_FILTERS = 16
+NB_EPOCH_CONV = 20
+NB_CONV_FILTERS = 32

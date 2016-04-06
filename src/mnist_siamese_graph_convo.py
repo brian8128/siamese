@@ -115,11 +115,11 @@ def compute_accuracy(predictions, labels):
     # the label is 1.
 
     # Correct predictions that the two observations come from different classes
-    p = (1 - labels[predictions.ravel() >= 0.5]).mean()
+    p = (1 - labels[predictions.ravel() >= 0.3]).mean()
     print("Correctly labled imposter pairs:{}".format(p))
 
     # Correctly predict that the two observations come from the same class
-    return labels[predictions.ravel() < 0.5].mean()
+    return labels[predictions.ravel() < 0.3].mean()
 
 
 # the data, shuffled and split between train and test sets
