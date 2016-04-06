@@ -39,10 +39,10 @@ def get_timeseries_data(data_set='train'):
             data_file = 'Inertial Signals/{0}_{1}_{2}.txt'.format(feature, dim, data_set)
             df = pd.read_csv(data_dir + data_file, header=None, sep='\s+')
             # We will want 128 x 1 data with 9 channels, not 128 x 9 data.
-            series = np.expand_dims(np.expand_dims(df.values, axis=2), axis=3)
+            series = np.expand_dims(np.expand_dims(df.values, axis=1), axis=3)
             timeseries_features.append(series)
 
-    X = np.concatenate(timeseries_features, axis=3)
+    X = np.concatenate(timeseries_features, axis=1)
 
     activity_file = 'y_{}.txt'.format(data_set)
     subject_file = 'subject_{}.txt'.format(data_set)
@@ -60,9 +60,9 @@ def get_timeseries_data(data_set='train'):
 
     # Scale the data:
     for i in range(9):
-        series = X[:, :, 0, i]
+        series = X[:, i, 0, :]
         m = np.max(series)
-        X[:, :, 0, i] = series / m
+        X[:, i, 0, :] = series / m
 
     # Shuffle the data before returning
     perm = np.random.permutation((range(X.shape[0])))
@@ -74,5 +74,7 @@ if __name__ == '__main__':
 
     # Test the data is scaled.
     for i in range(9):
-        series = X[:, :, 0, i]
+        series = X[:, i, 0, :]
         print np.max(series)
+
+    print X.shape
