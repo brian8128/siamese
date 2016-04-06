@@ -82,8 +82,10 @@ def create_base_network(input_shape):
     seq = Sequential()
     seq.add(Convolution2D(8, 10, 1,
                             border_mode='valid',
+                            activation='relu',
                             input_shape=input_shape
                           ))
+    seq.add(MaxPooling2D(pool_size=(3, 1)))
     seq.add(Flatten())
     seq.add(Dense(128, activation='relu',
                   ))
