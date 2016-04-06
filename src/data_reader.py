@@ -1,13 +1,10 @@
+from __future__ import division
 from settings import PROJECT_HOME
 import numpy as np
 import pandas as pd
 
 
-def get_data(train=True):
-    if train:
-        data_set = 'train'
-    else:
-        data_set = 'test'
+def get_data(data_set='train'):
 
     data_dir = "{0}/data/UCI_HAR_Dataset/{1}/".format(PROJECT_HOME, data_set)
     X_file = 'X_{}.txt'.format(data_set)
@@ -23,16 +20,59 @@ def get_data(train=True):
     df = pd.read_csv(data_dir + subject_file, header=None)
     y_subject = df.values
 
-    # # The Inertial Signals folder contains only timeseries data.  This might be easier
-    # # to apply convolutional layers to.
-    # df = pd.read_csv(data_dir + "Inertial Signals/body_gyro_x_train.txt", sep='\s+')
-    # body_gyro = df.values
-
+    # Restrict to walking activities.  Walking upstairs, walking downstairs and just walking
     idx = activity.T[0] < 4
 
     y_subject = y_subject[idx]
     X = X[idx]
 
+    # Shuffle the data before returning
     perm = np.random.permutation((range(X.shape[0])))
-
     return X[perm], y_subject[perm]
+
+def get_timeseries_data(data_set='train'):
+
+    data_dir = "{0}/data/UCI_HAR_Dataset/{1}/".format(PROJECT_HOME, data_set)
+    timeseries_features = []
+    for feature in ['body_acc', 'body_gyro', 'total_acc']:
+        for dim in ['x', 'y', 'z']:
+            data_file = 'Inertial Signals/{0}_{1}_{2}.txt'.format(feature, dim, data_set)
+            df = pd.read_csv(data_dir + data_file, header=None, sep='\s+')
+            # We will want 128 x 1 data with 9 channels, not 128 x 9 data.
+            series = np.expand_dims(np.expand_dims(df.values, axis=2), axis=3)
+            timeseries_features.append(series)
+
+    X = np.concatenate(timeseries_features, axis=3)
+
+    activity_file = 'y_{}.txt'.format(data_set)
+    subject_file = 'subject_{}.txt'.format(data_set)
+
+    df = pd.read_csv(data_dir + activity_file, header=None)
+    activity = df.values
+
+    df = pd.read_csv(data_dir + subject_file, header=None)
+    y_subject = df.values
+
+    # Restrict to walking activities.  Walking upstairs, walking downstairs and just walking
+    idx = activity.T[0] < 4
+    y_subject = y_subject[idx]
+    X = X[idx]
+
+    # Scale the data:
+    for i in range(9):
+        series = X[:, :, 0, i]
+        m = np.max(series)
+        X[:, :, 0, i] = series / m
+
+    # Shuffle the data before returning
+    perm = np.random.permutation((range(X.shape[0])))
+    return X[perm], y_subject[perm]
+
+
+if __name__ == '__main__':
+    X, y = get_timeseries_data('train')
+
+    # Test the data is scaled.
+    for i in range(9):
+        series = X[:, :, 0, i]
+        print np.max(series)

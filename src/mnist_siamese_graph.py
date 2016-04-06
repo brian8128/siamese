@@ -21,6 +21,8 @@ from keras import backend as K
 from keras.regularizers import l2, activity_l2, l1l2
 from keras.layers.normalization import BatchNormalization
 
+from settings import NB_EPOCH
+
 from src import data_reader
 
 def euclidean_distance(inputs):
@@ -38,28 +40,39 @@ def contrastive_loss(y, d):
     return K.mean(y * K.square(d) + (1 - y) * K.square(K.maximum(margin - d, 0)))
 
 
-def create_pairs(x, label_set, digit_indices):
+def create_pairs(x, y):
     '''Positive and negative pair creation.
     Alternates between positive and negative pairs.
     '''
+
     pairs = []
     labels = []
-    n = min([len(digit_indices[d]) for d in label_set]) - 1
-    for d in label_set:
-        for i in range(n):
-            # Add a pair where the digits are the same
-            z1, z2 = digit_indices[d][i], digit_indices[d][i+1]
-            pairs += [[x[z1], x[z2]]]
 
-            # Add a pair where the digits are different
-            dn = np.random.choice(label_set)
-            while dn == d:
+    for i in range(5):
+        perm = np.random.permutation((range(x.shape[0])))
+        x = x[perm]
+        y = y[perm]
+
+        label_set = np.unique(y)
+        digit_indices = {i:np.where(y == i)[0] for i in label_set}
+
+        n = min([len(digit_indices[d]) for d in label_set]) - 1
+        for d in label_set:
+            for i in range(n):
+                # Add a pair where the digits are the same
+                z1, z2 = digit_indices[d][i], digit_indices[d][i+1]
+                pairs += [[x[z1], x[z2]]]
+
+                # Add a pair where the digits are different
                 dn = np.random.choice(label_set)
-            z1, z2 = digit_indices[d][i], digit_indices[dn][i]
-            pairs += [[x[z1], x[z2]]]
+                while dn == d:
+                    dn = np.random.choice(label_set)
+                z1, z2 = digit_indices[d][i], digit_indices[dn][i]
+                pairs += [[x[z1], x[z2]]]
 
-            # Add the labels for both pairs we just added
-            labels += [1, 0]
+                # Add the labels for both pairs we just added
+                labels += [1, 0]
+
     return np.array(pairs), np.array(labels)
 
 
@@ -67,11 +80,12 @@ def create_base_network(input_dim):
     '''Base network to be shared (eq. to feature extraction).
     '''
     seq = Sequential()
-    seq.add(Dense(256, input_shape=(input_dim,), activation='relu',
+    seq.add(Dropout(0.1, input_shape=(input_dim,)))
+    seq.add(Dense(128, activation='relu',
                   W_regularizer=l2(0.01)
                   ))
     seq.add(Dropout(0.1))
-    seq.add(Dense(256, activation='relu',
+    seq.add(Dense(128, activation='relu',
                   W_regularizer=l2(0.01),
                   b_regularizer=l2(0.01)
                   ))
@@ -102,14 +116,12 @@ m = np.amax(X_train, axis=0)
 X_train /= m
 X_test /= m
 input_dim = 561
-nb_epoch = 20
+nb_epoch = NB_EPOCH
 
 # create training+test positive and negative pairs
-digit_indices = {i:np.where(y_train == i)[0] for i in np.unique(y_train)}
-tr_pairs, tr_y = create_pairs(X_train, np.unique(y_train), digit_indices)
 
-digit_indices = {i:np.where(y_test == i)[0] for i in np.unique(y_test)}
-te_pairs, te_y = create_pairs(X_test, np.unique(y_test), digit_indices)
+tr_pairs, tr_y = create_pairs(X_train, y_train)
+te_pairs, te_y = create_pairs(X_test, y_test)
 
 # network definition
 base_network = create_base_network(input_dim)
