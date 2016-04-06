@@ -36,6 +36,10 @@ def euclidean_distance(inputs):
 def contrastive_loss(y, d):
     '''Contrastive loss from Hadsell-et-al.'06
     http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
+
+    We want y and d to be different.
+    Loss is 0 if y = 1 and d = 0
+    Loss is 1 if y=d=1 or y=d=0
     '''
     margin = 1
     return K.mean(y * K.square(d) + (1 - y) * K.square(K.maximum(margin - d, 0)))
@@ -106,6 +110,15 @@ def create_base_network(input_shape):
 def compute_accuracy(predictions, labels):
     '''Compute classification accuracy with a fixed threshold on distances.
     '''
+    # Same is labeled 1, different is labeled 0
+    # Due to the contrastive loss function we want the prediction to be 0 when
+    # the label is 1.
+
+    # Correct predictions that the two observations come from different classes
+    p = (1 - labels[predictions.ravel() >= 0.5]).mean()
+    print("Correctly labled imposter pairs:{}".format(p))
+
+    # Correctly predict that the two observations come from the same class
     return labels[predictions.ravel() < 0.5].mean()
 
 
