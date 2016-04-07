@@ -1,12 +1,11 @@
-'''Train a Siamese MLP on pairs of digits from the MNIST dataset.
-It follows Hadsell-et-al.'06 [1] by computing the Euclidean distance on the
-output of the shared network and by optimizing the contrastive loss (see paper
-for mode details).
+'''Train a Siamese MLP on pairs of observations from the Human Activity Recognition 
+Using Smartphones Data Set dataset.  It follows Hadsell-et-al.'06 [1] by computing 
+the Euclidean distance on the output of the shared network and by optimizing the 
+contrastive loss (see paper for mode details).
 [1] "Dimensionality Reduction by Learning an Invariant Mapping"
     http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
-Run on GPU: THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python mnist_siamese_graph.py
-Gets to 99.5% test accuracy after 20 epochs.
-3 seconds per epoch on a Titan X GPU
+Run on GPU: THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python mnist_siamese_graph_convo.py
+
 '''
 from __future__ import absolute_import
 from __future__ import print_function
