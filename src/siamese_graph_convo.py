@@ -1,12 +1,11 @@
-'''Train a Siamese MLP on pairs of digits from the MNIST dataset.
-It follows Hadsell-et-al.'06 [1] by computing the Euclidean distance on the
-output of the shared network and by optimizing the contrastive loss (see paper
-for mode details).
+'''Train a Siamese MLP on pairs of observations from the Human Activity Recognition 
+Using Smartphones Data Set dataset.  It follows Hadsell-et-al.'06 [1] by computing 
+the Euclidean distance on the output of the shared network and by optimizing the 
+contrastive loss (see paper for mode details).
 [1] "Dimensionality Reduction by Learning an Invariant Mapping"
     http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
-Run on GPU: THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python mnist_siamese_graph.py
-Gets to 99.5% test accuracy after 20 epochs.
-3 seconds per epoch on a Titan X GPU
+Run on GPU: THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python mnist_siamese_graph_convo.py
+
 '''
 from __future__ import absolute_import
 from __future__ import print_function
@@ -15,13 +14,14 @@ import numpy as np
 np.random.seed(1)  # for reproducibility
 
 from keras.models import Sequential, Graph
-from keras.layers.core import Dense, Dropout, Lambda
+from keras.layers.core import Dense, Dropout, Lambda, Flatten
 from keras.optimizers import SGD, RMSprop, Adam
 from keras import backend as K
 from keras.regularizers import l2, activity_l2, l1l2
-from keras.layers.normalization import BatchNormalization
+from keras.layers import Convolution2D, MaxPooling2D
 
-from settings import NB_EPOCH
+from settings import NB_EPOCH_CONV
+from settings import NB_CONV_FILTERS
 
 from src import data_reader
 
@@ -35,6 +35,10 @@ def euclidean_distance(inputs):
 def contrastive_loss(y, d):
     '''Contrastive loss from Hadsell-et-al.'06
     http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
+
+    We want y and d to be different.
+    Loss is 0 if y = 1 and d = 0
+    Loss is 1 if y=d=1 or y=d=0
     '''
     margin = 1
     return K.mean(y * K.square(d) + (1 - y) * K.square(K.maximum(margin - d, 0)))
@@ -76,13 +80,18 @@ def create_pairs(x, y):
     return np.array(pairs), np.array(labels)
 
 
-def create_base_network(input_dim):
+def create_base_network(input_shape):
     '''Base network to be shared (eq. to feature extraction).
     '''
     seq = Sequential()
-    seq.add(Dropout(0.1, input_shape=(input_dim,)))
+    seq.add(Convolution2D(NB_CONV_FILTERS, 10, 1,
+                            border_mode='valid',
+                            activation='relu',
+                            input_shape=input_shape
+                          ))
+    seq.add(MaxPooling2D(pool_size=(3, 1)))
+    seq.add(Flatten())
     seq.add(Dense(128, activation='relu',
-                  W_regularizer=l2(0.01)
                   ))
     seq.add(Dropout(0.1))
     seq.add(Dense(128, activation='relu',
@@ -100,23 +109,28 @@ def create_base_network(input_dim):
 def compute_accuracy(predictions, labels):
     '''Compute classification accuracy with a fixed threshold on distances.
     '''
-    return labels[predictions.ravel() < 0.5].mean()
+    # Same is labeled 1, different is labeled 0
+    # Due to the contrastive loss function we want the prediction to be 0 when
+    # the label is 1.
+
+    # Correct predictions that the two observations come from different classes
+    p = (1 - labels[predictions.ravel() >= 0.3]).mean()
+    print("Correctly labled imposter pairs:{}".format(p))
+
+    # Correctly predict that the two observations come from the same class
+    return labels[predictions.ravel() < 0.3].mean()
 
 
 # the data, shuffled and split between train and test sets
 # (X_train, y_train), (X_test, y_test) = mnist.load_data()
-X_train, y_train = data_reader.get_data()
-X_test, y_test = data_reader.get_data(train=False)
+X_train, y_train = data_reader.get_timeseries_data()
+X_test, y_test = data_reader.get_timeseries_data('test')
 
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 
-m = np.amax(X_train, axis=0)
-
-X_train /= m
-X_test /= m
-input_dim = 561
-nb_epoch = NB_EPOCH
+input_shape = (9, 128, 1)
+nb_epoch = NB_EPOCH_CONV
 
 # create training+test positive and negative pairs
 
@@ -124,11 +138,11 @@ tr_pairs, tr_y = create_pairs(X_train, y_train)
 te_pairs, te_y = create_pairs(X_test, y_test)
 
 # network definition
-base_network = create_base_network(input_dim)
+base_network = create_base_network(input_shape)
 
 g = Graph()
-g.add_input(name='input_a', input_shape=(input_dim,))
-g.add_input(name='input_b', input_shape=(input_dim,))
+g.add_input(name='input_a', input_shape=input_shape)
+g.add_input(name='input_b', input_shape=input_shape)
 g.add_shared_node(base_network, name='shared', inputs=['input_a', 'input_b'],
                   merge_mode='join')
 g.add_node(Lambda(euclidean_distance), name='d', input='shared')

@@ -30,7 +30,13 @@ def get_data(data_set='train'):
     perm = np.random.permutation((range(X.shape[0])))
     return X[perm], y_subject[perm]
 
+
 def get_timeseries_data(data_set='train'):
+    """
+    :param data_set: 'train' for train data or 'test' for test data
+    :return: tuple containing the gyro data, the subject id, and the activity id
+             data are shuffled before returning.
+    """
 
     data_dir = "{0}/data/UCI_HAR_Dataset/{1}/".format(PROJECT_HOME, data_set)
     timeseries_features = []
@@ -51,11 +57,12 @@ def get_timeseries_data(data_set='train'):
     activity = df.values
 
     df = pd.read_csv(data_dir + subject_file, header=None)
-    y_subject = df.values
+    subject = df.values
 
     # Restrict to walking activities.  Walking upstairs, walking downstairs and just walking
     idx = activity.T[0] < 4
-    y_subject = y_subject[idx]
+    subject = subject[idx]
+    activity = activity[idx]
     X = X[idx]
 
     # Scale the data:
@@ -66,7 +73,7 @@ def get_timeseries_data(data_set='train'):
 
     # Shuffle the data before returning
     perm = np.random.permutation((range(X.shape[0])))
-    return X[perm], y_subject[perm]
+    return X[perm], subject[perm], activity[perm]
 
 
 if __name__ == '__main__':
