@@ -20,10 +20,11 @@ from keras import backend as K
 from keras.regularizers import l2, activity_l2, l1l2
 from keras.layers import Convolution2D, MaxPooling2D
 
-from settings import NB_EPOCH_CONV
-from settings import NB_CONV_FILTERS
+from settings import NB_EPOCH, NB_CONV_FILTERS, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, MARGIN
 
 from src import data_reader
+
+import matplotlib.pyplot as plt
 
 def euclidean_distance(inputs):
     assert len(inputs) == 2, ('Euclidean distance needs '
@@ -40,7 +41,7 @@ def contrastive_loss(y, d):
     Loss is 0 if y = 1 and d = 0
     Loss is 1 if y=d=1 or y=d=0
     '''
-    margin = 1
+    margin = MARGIN
     return K.mean(y * K.square(d) + (1 - y) * K.square(K.maximum(margin - d, 0)))
 
 
@@ -99,11 +100,17 @@ def create_base_network(input_shape):
                   b_regularizer=l2(0.01)
                   ))
     seq.add(Dropout(0.1))
-    seq.add(Dense(64, activation='relu',
-                  W_regularizer=l2(0.01),
-                  b_regularizer=l2(0.01)
-                  ))
-    return seq
+
+    embedding = Dense(EMBEDDING_DIM, activation='linear',
+                 W_regularizer=l2(0.01),
+                 b_regularizer=l2(0.01)
+                 )
+
+    seq.add(embedding)
+
+    embedding_function = K.function([seq.get_input(train=False)], embedding.get_output(train=False))
+
+    return seq, embedding_function
 
 
 def compute_accuracy(predictions, labels):
@@ -122,15 +129,17 @@ def compute_accuracy(predictions, labels):
 
 
 # the data, shuffled and split between train and test sets
-# (X_train, y_train), (X_test, y_test) = mnist.load_data()
-X_train, y_train = data_reader.get_timeseries_data()
-X_test, y_test = data_reader.get_timeseries_data('test')
+X_train, subjects_train, _ = data_reader.get_timeseries_data('train')
+X_test, subjects_test, _ = data_reader.get_timeseries_data('test')
+
+y_train = subjects_train
+y_test = subjects_test
 
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 
 input_shape = (9, 128, 1)
-nb_epoch = NB_EPOCH_CONV
+nb_epoch = NB_EPOCH
 
 # create training+test positive and negative pairs
 
@@ -138,7 +147,7 @@ tr_pairs, tr_y = create_pairs(X_train, y_train)
 te_pairs, te_y = create_pairs(X_test, y_test)
 
 # network definition
-base_network = create_base_network(input_shape)
+base_network, embedding_function = create_base_network(input_shape)
 
 g = Graph()
 g.add_input(name='input_a', input_shape=input_shape)
@@ -149,7 +158,11 @@ g.add_node(Lambda(euclidean_distance), name='d', input='shared')
 g.add_output(name='output', input='d')
 
 # train
-opt = RMSprop()
+
+if OPTIMIZER is 'sgd':
+    opt = SGD(lr=LEARNING_RATE)
+else:
+    opt = RMSprop(lr=LEARNING_RATE)
 g.compile(loss={'output': contrastive_loss}, optimizer=opt)
 g.fit({'input_a': tr_pairs[:, 0], 'input_b': tr_pairs[:, 1], 'output': tr_y},
       validation_data={'input_a': te_pairs[:, 0], 'input_b': te_pairs[:, 1], 'output': te_y},
@@ -164,3 +177,20 @@ te_acc = compute_accuracy(pred, te_y)
 
 print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
 print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
+
+
+subject_subset_max = np.unique(subjects_train)[4]
+idx = subjects_train.T[0] < subject_subset_max
+observations = X_train[idx]
+subjects = subjects_train[idx]
+
+embedding = embedding_function([observations])
+
+x = embedding[:, 0]
+y = embedding[:, 1]
+
+print(x)
+print(y)
+
+plt.scatter(x, y, c=subjects)
+plt.savefig('foo.png', bbox_inches='tight')

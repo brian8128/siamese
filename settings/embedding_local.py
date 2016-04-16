@@ -4,17 +4,21 @@ PROJECT_HOME = "/Users/Brian/workplace/projects/siamese/"
 # no expectation of reasonable prediction accuracy
 
 # Settings for cnn
-NB_EPOCH = 1
-NB_CONV_FILTERS = 2
+NB_EPOCH = 2
+NB_CONV_FILTERS = 20
 
 # Dimension of the embedding space. Here it is artifically small so we can visulaize it
-EMBEDDING_DIM = 8
+EMBEDDING_DIM = 3
+
+FULLY_CONNECTED_SIZE = 512
 
 # Learning Rate. Here we make it smaller because we seem to diverge with the normal learning
 # rate and such a small embedding space
-LEARNING_RATE = 0.001
-OPTIMIZER = 'rms'
+LEARNING_RATE = 0.000001
+OPTIMIZER = 'sgd'
 
 # Margin for the contrastive loss function.  How far apart two observations from different
 # classes need to be before the error is zero
-MARGIN = 1
+MARGIN = 0.1
+
+

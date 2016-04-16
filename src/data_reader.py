@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function, absolute_import
 from settings import PROJECT_HOME
 import numpy as np
 import pandas as pd
@@ -77,11 +77,15 @@ def get_timeseries_data(data_set='train'):
 
 
 if __name__ == '__main__':
-    X, y = get_timeseries_data('train')
+    X, subjects, actions = get_timeseries_data('train')
 
     # Test the data is scaled.
     for i in range(9):
         series = X[:, i, 0, :]
-        print np.max(series)
+        print(np.max(series))
 
-    print X.shape
+    print(X.shape)
+
+    print(np.unique(actions, return_counts=True))
+
+    print(np.unique(subjects))
