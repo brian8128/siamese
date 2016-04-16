@@ -19,8 +19,7 @@ from keras.layers import Convolution2D, MaxPooling2D
 
 from sklearn.preprocessing import OneHotEncoder
 
-from settings import NB_EPOCH
-from settings import NB_CONV_FILTERS
+from settings import NB_EPOCH, NB_CONV_FILTERS, DROPOUT
 from src import data_reader
 from sklearn.metrics import confusion_matrix
 
@@ -38,12 +37,12 @@ def create_base_network(input_shape):
     seq.add(Flatten())
     seq.add(Dense(128, activation='relu',
                   ))
-    seq.add(Dropout(0.1))
+    seq.add(Dropout(DROPOUT))
     seq.add(Dense(128, activation='relu',
                   W_regularizer=l2(0.01),
                   b_regularizer=l2(0.01)
                   ))
-    seq.add(Dropout(0.1))
+    seq.add(Dropout(DROPOUT))
     seq.add(Dense(64, activation='relu',
                   W_regularizer=l2(0.01),
                   b_regularizer=l2(0.01)
