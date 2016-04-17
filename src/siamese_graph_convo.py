@@ -13,12 +13,12 @@ from __future__ import division
 import numpy as np
 np.random.seed(1)  # for reproducibility
 
-from keras.models import Sequential, Graph
+from keras.models import Sequential, Model
 from keras.layers.core import Dense, Dropout, Lambda, Flatten
 from keras.optimizers import SGD, RMSprop, Adam
 from keras import backend as K
 from keras.regularizers import l2, activity_l2, l1l2
-from keras.layers import Convolution2D, MaxPooling2D
+from keras.layers import Convolution2D, MaxPooling2D, Input
 
 from settings import NB_EPOCH, NB_CONV_FILTERS, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, MARGIN
 
@@ -26,11 +26,15 @@ from src import data_reader
 
 import matplotlib.pyplot as plt
 
-def euclidean_distance(inputs):
-    assert len(inputs) == 2, ('Euclidean distance needs '
-                              '2 inputs, %d given' % len(inputs))
-    u, v = inputs.values()
-    return K.sqrt(K.sum(K.square(u - v), axis=1, keepdims=True))
+
+def euclidean_distance(vects):
+    x, y = vects
+    return K.sqrt(K.sum(K.square(x - y), axis=1, keepdims=True))
+
+
+def eucl_dist_output_shape(shapes):
+    shape1, shape2 = shapes
+    return shape1
 
 
 def contrastive_loss(y, d):
@@ -88,7 +92,8 @@ def create_base_network(input_shape):
     seq.add(Convolution2D(NB_CONV_FILTERS, 10, 1,
                             border_mode='valid',
                             activation='relu',
-                            input_shape=input_shape
+                            input_shape=input_shape,
+                            name="input"
                           ))
     seq.add(MaxPooling2D(pool_size=(3, 1)))
     seq.add(Flatten())
@@ -103,14 +108,13 @@ def create_base_network(input_shape):
 
     embedding = Dense(EMBEDDING_DIM, activation='linear',
                  W_regularizer=l2(0.01),
-                 b_regularizer=l2(0.01)
+                 b_regularizer=l2(0.01),
+                 name='embedding'
                  )
 
     seq.add(embedding)
 
-    embedding_function = K.function([seq.get_input(train=False)], embedding.get_output(train=False))
-
-    return seq, embedding_function
+    return seq
 
 
 def compute_accuracy(predictions, labels):
@@ -147,15 +151,20 @@ tr_pairs, tr_y = create_pairs(X_train, y_train)
 te_pairs, te_y = create_pairs(X_test, y_test)
 
 # network definition
-base_network, embedding_function = create_base_network(input_shape)
+base_network = create_base_network(input_shape)
 
-g = Graph()
-g.add_input(name='input_a', input_shape=input_shape)
-g.add_input(name='input_b', input_shape=input_shape)
-g.add_shared_node(base_network, name='shared', inputs=['input_a', 'input_b'],
-                  merge_mode='join')
-g.add_node(Lambda(euclidean_distance), name='d', input='shared')
-g.add_output(name='output', input='d')
+input_a = Input(shape=input_shape)
+input_b = Input(shape=input_shape)
+
+# because we re-use the same instance `base_network`,
+# the weights of the network
+# will be shared across the two branches
+processed_a = base_network(input_a)
+processed_b = base_network(input_b)
+
+distance = Lambda(euclidean_distance, output_shape=eucl_dist_output_shape)([processed_a, processed_b])
+
+model = Model(input=[input_a, input_b], output=distance)
 
 # train
 
@@ -163,34 +172,43 @@ if OPTIMIZER is 'sgd':
     opt = SGD(lr=LEARNING_RATE)
 else:
     opt = RMSprop(lr=LEARNING_RATE)
-g.compile(loss={'output': contrastive_loss}, optimizer=opt)
-g.fit({'input_a': tr_pairs[:, 0], 'input_b': tr_pairs[:, 1], 'output': tr_y},
-      validation_data={'input_a': te_pairs[:, 0], 'input_b': te_pairs[:, 1], 'output': te_y},
-      batch_size=128,
-      nb_epoch=nb_epoch)
+model.compile(loss=contrastive_loss, optimizer=opt, metrics=['accuracy'])
+
+model.fit([tr_pairs[:, 0], tr_pairs[:, 1]], tr_y,
+          validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
+          batch_size=128,
+          nb_epoch=nb_epoch)
 
 # compute final accuracy on training and test sets
-pred = g.predict({'input_a': tr_pairs[:, 0], 'input_b': tr_pairs[:, 1]})['output']
+pred = model.predict([tr_pairs[:, 0], tr_pairs[:, 1]])
 tr_acc = compute_accuracy(pred, tr_y)
-pred = g.predict({'input_a': te_pairs[:, 0], 'input_b': te_pairs[:, 1]})['output']
+pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
 te_acc = compute_accuracy(pred, te_y)
 
 print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
 print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
-
 
 subject_subset_max = np.unique(subjects_train)[4]
 idx = subjects_train.T[0] < subject_subset_max
 observations = X_train[idx]
 subjects = subjects_train[idx]
 
-embedding = embedding_function([observations])
 
-x = embedding[:, 0]
-y = embedding[:, 1]
+# Intermediate outputs seem to be broken in 1.0 :(
 
-print(x)
-print(y)
-
-plt.scatter(x, y, c=subjects)
-plt.savefig('foo.png', bbox_inches='tight')
+# # get the symbolic outputs of each "key" layer (we gave them unique names).
+# layer_dict = dict([(layer.name, layer) for layer in base_network.layers])
+#
+# embedding_function = K.function([layer_dict['input'].input],
+#                                 [layer_dict['embedding'].output])
+#
+# embedding = embedding_function([observations])
+#
+# x = embedding[:, 0]
+# y = embedding[:, 1]
+#
+# print(x)
+# print(y)
+#
+# plt.scatter(x, y, c=subjects)
+# plt.savefig('foo.png', bbox_inches='tight')

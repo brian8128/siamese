@@ -73,7 +73,7 @@ model.add(Dense(3, activation='softmax'))
 
 # train
 opt = RMSprop()
-model.compile(loss='categorical_crossentropy', optimizer=opt)
+model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 model.fit(X_train, y_train,
       validation_data=(X_test, y_test),
       batch_size=128,
@@ -81,7 +81,7 @@ model.fit(X_train, y_train,
 
 pred = model.predict(X_test)
 
-score = model.evaluate(X_test, y_test, verbose=0, show_accuracy=True)
+score = model.evaluate(X_test, y_test, verbose=0)
 print('Test score:', score[0])
 print('Test accuracy:', score[1])
 

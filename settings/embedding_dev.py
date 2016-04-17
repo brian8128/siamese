@@ -7,6 +7,8 @@ PROJECT_HOME = "/Users/Brian/workplace/projects/siamese/"
 NB_EPOCH = 1
 NB_CONV_FILTERS = 2
 
+DROPOUT = 0.1
+
 # Dimension of the embedding space. Here it is artifically small so we can visulaize it
 EMBEDDING_DIM = 2
 
