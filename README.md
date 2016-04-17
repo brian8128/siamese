@@ -23,3 +23,6 @@ close to G_W(x_2) iff x_1 and x_2 belong to the same class.
 I trained the network on 21 test subjects and tested it on the remaining 9.  
 Using the convonet we achieved 94% accuracy telling whether two observations came from the same test
 subject or a different test subject.  
+
+## The App
+Fitness app for insurance companies.  Measure how much people exercise and give discounts.  Detect when they give their phones to friends to exercise for them and don't give credit.
