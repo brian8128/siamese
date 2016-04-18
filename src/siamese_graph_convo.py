@@ -20,9 +20,10 @@ from keras import backend as K
 from keras.regularizers import l2, activity_l2, l1l2
 from keras.layers import Convolution2D, MaxPooling2D, Input
 
-from settings import NB_EPOCH, NB_CONV_FILTERS, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, MARGIN
+from settings import NB_EPOCH, INPUT_SHAPE, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, MARGIN
 
 from src import data_reader
+from src.base_network import create_base_network
 
 import matplotlib.pyplot as plt
 
@@ -84,37 +85,22 @@ def create_pairs(x, y):
 
     return np.array(pairs), np.array(labels)
 
+def create_base_network_with_embedding():
+    """
+    Take the base network and add an embedding layer
+    """
 
-def create_base_network(input_shape):
-    '''Base network to be shared (eq. to feature extraction).
-    '''
-    seq = Sequential()
-    seq.add(Convolution2D(NB_CONV_FILTERS, 10, 1,
-                            border_mode='valid',
-                            activation='relu',
-                            input_shape=input_shape,
-                            name="input"
-                          ))
-    seq.add(MaxPooling2D(pool_size=(3, 1)))
-    seq.add(Flatten())
-    seq.add(Dense(128, activation='relu',
-                  ))
-    seq.add(Dropout(0.1))
-    seq.add(Dense(128, activation='relu',
-                  W_regularizer=l2(0.01),
-                  b_regularizer=l2(0.01)
-                  ))
-    seq.add(Dropout(0.1))
+    base_network = create_base_network(INPUT_SHAPE)
 
     embedding = Dense(EMBEDDING_DIM, activation='linear',
-                 W_regularizer=l2(0.01),
-                 b_regularizer=l2(0.01),
-                 name='embedding'
-                 )
+                      W_regularizer=l2(0.01),
+                      b_regularizer=l2(0.01),
+                      name='embedding'
+                      )
 
-    seq.add(embedding)
+    base_network.add(embedding)
 
-    return seq
+    return base_network
 
 
 def compute_accuracy(predictions, labels):
@@ -142,7 +128,7 @@ y_test = subjects_test
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 
-input_shape = (9, 128, 1)
+
 nb_epoch = NB_EPOCH
 
 # create training+test positive and negative pairs
@@ -151,10 +137,10 @@ tr_pairs, tr_y = create_pairs(X_train, y_train)
 te_pairs, te_y = create_pairs(X_test, y_test)
 
 # network definition
-base_network = create_base_network(input_shape)
+base_network = create_base_network_with_embedding()
 
-input_a = Input(shape=input_shape)
-input_b = Input(shape=input_shape)
+input_a = Input(shape=INPUT_SHAPE)
+input_b = Input(shape=INPUT_SHAPE)
 
 # because we re-use the same instance `base_network`,
 # the weights of the network
@@ -196,19 +182,28 @@ subjects = subjects_train[idx]
 
 # Intermediate outputs seem to be broken in 1.0 :(
 
-# # get the symbolic outputs of each "key" layer (we gave them unique names).
-# layer_dict = dict([(layer.name, layer) for layer in base_network.layers])
-#
-# embedding_function = K.function([layer_dict['input'].input],
-#                                 [layer_dict['embedding'].output])
-#
-# embedding = embedding_function([observations])
-#
-# x = embedding[:, 0]
-# y = embedding[:, 1]
-#
-# print(x)
-# print(y)
-#
-# plt.scatter(x, y, c=subjects)
-# plt.savefig('foo.png', bbox_inches='tight')
+# get the symbolic outputs of each "key" layer (we gave them unique names).
+layer_dict = dict([(layer.name, layer) for layer in base_network.layers])
+
+print("Layers:")
+for layer in base_network.layers:
+    print(layer.input)
+
+for i in base_network.inputs:
+    print(i)
+
+embedding_function = K.function(base_network.inputs,
+                    [layer_dict['embedding'].output])
+
+embedding = embedding_function([observations])[0]
+
+print(embedding)
+
+x = embedding[:, 0]
+y = embedding[:, 1]
+
+print(x)
+print(y)
+
+plt.scatter(x, y, c=subjects)
+plt.savefig('foo.png', bbox_inches='tight')

@@ -10,44 +10,14 @@ from __future__ import division
 import numpy as np
 np.random.seed(1)  # for reproducibility
 
-from keras.models import Sequential, Graph
-from keras.layers.core import Dense, Dropout, Lambda, Flatten
+from keras.layers.core import Dense
 from keras.optimizers import SGD, RMSprop, Adam
-from keras import backend as K
-from keras.regularizers import l2, activity_l2, l1l2
-from keras.layers import Convolution2D, MaxPooling2D
 
 from sklearn.preprocessing import OneHotEncoder
-
 from settings import NB_EPOCH, NB_CONV_FILTERS, DROPOUT
 from src import data_reader
+from src.base_network import create_base_network
 from sklearn.metrics import confusion_matrix
-
-
-def create_base_network(input_shape):
-    '''Base network to be shared (eq. to feature extraction).
-    '''
-    seq = Sequential()
-    seq.add(Convolution2D(NB_CONV_FILTERS, 10, 1,
-                            border_mode='valid',
-                            activation='relu',
-                            input_shape=input_shape
-                          ))
-    seq.add(MaxPooling2D(pool_size=(3, 1)))
-    seq.add(Flatten())
-    seq.add(Dense(128, activation='relu',
-                  ))
-    seq.add(Dropout(DROPOUT))
-    seq.add(Dense(128, activation='relu',
-                  W_regularizer=l2(0.01),
-                  b_regularizer=l2(0.01)
-                  ))
-    seq.add(Dropout(DROPOUT))
-    seq.add(Dense(64, activation='relu',
-                  W_regularizer=l2(0.01),
-                  b_regularizer=l2(0.01)
-                  ))
-    return seq
 
 # Scaled and shuffled data
 X_train, subject_train, activity_train = data_reader.get_timeseries_data('train')
