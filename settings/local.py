@@ -4,17 +4,16 @@ PROJECT_HOME = "/Users/Brian/workplace/projects/siamese/"
 # were actually running on a gpu
 
 # Settings for vanilla nn
-NB_EPOCH = 20
+NB_EPOCH = 2
 
 # Settings for cnn
-NB_EPOCH_CONV = 20
 NB_CONV_FILTERS = 64
 
 DROPOUT = True
 DROPOUT_FRACTION = 0.4
 
 # Dimension of the embedding space. Here it is artifically small so we can visulaize it
-EMBEDDING_DIM = 32
+EMBEDDING_DIM = 64
 
 FULLY_CONNECTED_SIZE = 128
 
@@ -25,4 +24,4 @@ OPTIMIZER = 'sgd'
 
 # Margin for the contrastive loss function.  How far apart two observations from different
 # classes need to be before the error is zero
-MARGIN = 0.8
+MARGIN = 0.5

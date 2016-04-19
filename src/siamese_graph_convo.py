@@ -182,28 +182,21 @@ subjects = subjects_train[idx]
 
 # Intermediate outputs seem to be broken in 1.0 :(
 
-# get the symbolic outputs of each "key" layer (we gave them unique names).
-layer_dict = dict([(layer.name, layer) for layer in base_network.layers])
-
-print("Layers:")
-for layer in base_network.layers:
-    print(layer.input)
-
-for i in base_network.inputs:
-    print(i)
-
-embedding_function = K.function(base_network.inputs,
-                    [layer_dict['embedding'].output])
-
-embedding = embedding_function([observations])[0]
-
-print(embedding)
-
-x = embedding[:, 0]
-y = embedding[:, 1]
-
-print(x)
-print(y)
-
-plt.scatter(x, y, c=subjects)
-plt.savefig('foo.png', bbox_inches='tight')
+# # get the symbolic outputs of each "key" layer (we gave them unique names).
+# layer_dict = dict([(layer.name, layer) for layer in base_network.layers])
+#
+# embedding_function = K.function(base_network.inputs,
+#                     [layer_dict['embedding'].output])
+#
+# embedding = embedding_function([observations])[0]
+#
+# print(embedding)
+#
+# x = embedding[:, 0]
+# y = embedding[:, 1]
+#
+# print(x)
+# print(y)
+#
+# plt.scatter(x, y, c=subjects)
+# plt.savefig('foo.png', bbox_inches='tight')

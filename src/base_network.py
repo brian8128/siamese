@@ -3,7 +3,7 @@ from keras.layers import Convolution2D, MaxPooling2D
 from keras.models import Sequential
 from keras.regularizers import l2
 
-from settings import NB_CONV_FILTERS, DROPOUT, DROPOUT_FRACTION
+from settings import DROPOUT, DROPOUT_FRACTION
 
 
 def create_base_network(input_shape):
@@ -14,10 +14,10 @@ def create_base_network(input_shape):
     '''
     seq = Sequential()
     seq.add(Convolution2D(32, 8, 1,
-                            border_mode='valid',
-                            activation='relu',
-                            input_shape=input_shape,
-                            name="input"
+                          border_mode='valid',
+                          activation='relu',
+                          input_shape=input_shape,
+                          name="input"
                           ))
     seq.add(MaxPooling2D(pool_size=(2, 1)))
     seq.add(Convolution2D(64, 4, 1,
