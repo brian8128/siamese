@@ -5,7 +5,7 @@ Identify a user by their walking style based on cell phone gyro and acceleromete
 https://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
 We restricted the data to the walking activities.  Walking upstairs, walking downstairs, or just walking.
 
-![data viz](figures/img.png)
+![data viz](images/img.png)
 
 ## Requirements
 The algorithm must scale to millions of classes
