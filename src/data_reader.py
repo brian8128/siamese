@@ -40,6 +40,7 @@ def get_timeseries_data(data_set='train'):
 
     data_dir = "{0}/data/UCI_HAR_Dataset/{1}/".format(PROJECT_HOME, data_set)
     timeseries_features = []
+    timeseries_feature_names = []
     for feature in ['body_acc', 'body_gyro', 'total_acc']:
         for dim in ['x', 'y', 'z']:
             data_file = 'Inertial Signals/{0}_{1}_{2}.txt'.format(feature, dim, data_set)
@@ -47,6 +48,8 @@ def get_timeseries_data(data_set='train'):
             # We will want 128 x 1 data with 9 channels, not 128 x 9 data.
             series = np.expand_dims(np.expand_dims(df.values, axis=1), axis=3)
             timeseries_features.append(series)
+
+            timeseries_feature_names.append("_".join([feature, dim]))
 
     X = np.concatenate(timeseries_features, axis=1)
 
@@ -67,21 +70,25 @@ def get_timeseries_data(data_set='train'):
 
     # Scale the data:
     for i in range(9):
-        series = X[:, i, 0, :]
-        m = np.max(series)
-        X[:, i, 0, :] = series / m
+        series = X[:, i, :, 0]
+        mean = np.mean(series)
+        scaling_factor = np.percentile(np.abs(series-mean), 90)
+        X[:, i, :, 0] = (series - mean) / scaling_factor
+
+        # X.shape
+        # (3285, 9, 128, 1)
 
     # Shuffle the data before returning
     perm = np.random.permutation((range(X.shape[0])))
-    return X[perm], subject[perm], activity[perm]
+    return X[perm], subject[perm], activity[perm], timeseries_feature_names
 
 
 if __name__ == '__main__':
-    X, subjects, actions = get_timeseries_data('train')
+    X, subjects, actions, _ = get_timeseries_data('train')
 
     # Test the data is scaled.
     for i in range(9):
-        series = X[:, i, 0, :]
+        series = X[:, i, :, 0]
         print(np.max(series))
 
     print(X.shape)
@@ -89,3 +96,5 @@ if __name__ == '__main__':
     print(np.unique(actions, return_counts=True))
 
     print(np.unique(subjects))
+
+    print(X)

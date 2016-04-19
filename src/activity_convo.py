@@ -14,14 +14,14 @@ from keras.layers.core import Dense
 from keras.optimizers import SGD, RMSprop, Adam
 
 from sklearn.preprocessing import OneHotEncoder
-from settings import NB_EPOCH, NB_CONV_FILTERS, DROPOUT
+from settings import NB_EPOCH, LEARNING_RATE
 from src import data_reader
 from src.base_network import create_base_network
 from sklearn.metrics import confusion_matrix
 
 # Scaled and shuffled data
-X_train, subject_train, activity_train = data_reader.get_timeseries_data('train')
-X_test, subject_test, activity_test = data_reader.get_timeseries_data('test')
+X_train, subject_train, activity_train, _ = data_reader.get_timeseries_data('train')
+X_test, subject_test, activity_test, _ = data_reader.get_timeseries_data('test')
 
 encoder = OneHotEncoder()
 activity_train_one_hot = encoder.fit_transform(activity_train).todense()
@@ -42,7 +42,7 @@ model = create_base_network(input_shape)
 model.add(Dense(3, activation='softmax'))
 
 # train
-opt = RMSprop()
+opt = RMSprop(lr=LEARNING_RATE)
 model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 model.fit(X_train, y_train,
       validation_data=(X_test, y_test),
