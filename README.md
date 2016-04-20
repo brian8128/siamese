@@ -26,17 +26,16 @@ added three additional features per timestep. We achieved better performance omi
 #### Archetecture
 #### Filter Visualization
 #### Accuracy
-Test score: 0.144440290871 (This is cross entropy)
 
-Test accuracy: 0.979091564528
+Test score (cross entropy): 0.0458956248169
 
-Confusion Matrix
+Test accuracy: 0.984138428262
 
-[[491   0   5]
+[[495   0   1]
 
- [  0 447  24]
+ [  5 454  12]
 
- [  0   0 420]]
+ [  2   2 416]]
  
 ![confusion matrix](images/activity_prediction_confusion_matrix.png)
  

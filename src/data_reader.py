@@ -84,13 +84,15 @@ def get_timeseries_data(data_set='train'):
 
     # Shuffle the data before returning
     perm = np.random.permutation((range(X.shape[0])))
-    return X[perm], subject[perm], activity[perm], timeseries_feature_names
+    return X[perm], subject[perm], activity[perm], map(lambda x: x[5:], timeseries_feature_names)
 
 
 if __name__ == '__main__':
-    X, subjects, activities, _ = get_timeseries_data('test')
+    X, subjects, activities, feature_names = get_timeseries_data('test')
 
     encoder = OneHotEncoder()
     activity_train_one_hot = encoder.fit_transform(activities).todense()
 
     print(np.sum(activity_train_one_hot, axis=0))
+
+    print()
