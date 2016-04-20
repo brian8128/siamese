@@ -19,6 +19,8 @@ from src import data_reader
 from src.base_network import create_base_network
 from sklearn.metrics import confusion_matrix
 
+import matplotlib.pyplot as plt
+
 # Scaled and shuffled data
 X_train, subject_train, activity_train, _ = data_reader.get_timeseries_data('train')
 X_test, subject_test, activity_test, _ = data_reader.get_timeseries_data('test')
@@ -57,4 +59,22 @@ print('Test accuracy:', score[1])
 
 predicted_classes = np.expand_dims(np.argmax(pred, axis=1) + 1, axis=1)
 cm = confusion_matrix(activity_test, predicted_classes)
+
+
+def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(3)
+    plt.xticks(tick_marks, ['Walking', 'Walking Upstairs', 'Walking Downstairs'], rotation=45)
+    plt.yticks(tick_marks, ['Walking', 'Walking Upstairs', 'Walking Downstairs'])
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.savefig('images/activity_prediction_confusion_matrix.png', bbox_inches='tight')
+
+cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
 print(cm)
+
+plot_confusion_matrix(cm_normalized)
