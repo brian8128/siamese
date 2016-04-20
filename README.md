@@ -15,7 +15,7 @@ Recordings were taken using accellerameters and gyroscopes in a normal cell phon
 21 were used as training data and 9 as test data.
 
 Accelerometers and gyros both record along x, y and z axes giving 6 features per timestep. Curators of the dataset 
-added three additional features per timestep. We achieved better performance omitting these features.  
+added three additional features per timestep attempting to remove the effect of gravity from the accellerameter data. We achieved better model performance by omitting these features.  
 
 ![data viz](images/walking_raw_large.png)
 
