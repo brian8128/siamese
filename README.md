@@ -54,6 +54,9 @@ Although we had thousands of test observations, remember that these observations
 21 subjects. One reason why we might have had poor prediction accuracy for subject 10 
 is that none of our 21 train subjects had a similar enough gait to subject 10.
 
+Question: Do most subjects have higher variance in gyro and for downstairs? 
+Does subject 10 have higher variance for all activities?
+
 ## Second Challenge: Fraud Detection
 
 
