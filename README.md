@@ -39,7 +39,7 @@ Confusion Matrix
 
  [  0   0 420]]
  
- ![confusion matrix](images/activity_prediction_confusion_matrix.png)
+![confusion matrix](images/activity_prediction_confusion_matrix.png)
  
 #### Error Investigation
 Is it just one test subject that is driving all the error?
@@ -48,11 +48,12 @@ Yes. Subject 10 is the only one of the 9 test subjects for whom we have classifi
 The neural network sometimes thinks his or her walking upstairs looks like walking downstairs
 and occasionally thinks that his her her walking looks like walking downstairs.
 
-** confusion matrix for subject 10 only **
+![confusion matrix](images/activity_prediction_confusion_matrix_10.png)
 
 Although we had thousands of test observations, remember that these observations all came from 
 21 subjects. One reason why we might have had poor prediction accuracy for subject 10 
-is that none of our 21 train subjects had a similar enough gait to subject 10.
+is that our 21 train subjects may not have been representative of the population.  Perhaps
+none, or not enough of our train subjects had a similar enough gait to subject 10.
 
 Question: Do most subjects have higher variance in gyro and for downstairs? 
 Does subject 10 have higher variance for all activities?
