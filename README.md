@@ -14,9 +14,8 @@ We restricted the data to the walking activities: walking, walking upstairs, and
 Recordings were taken using accellerameters and gyroscopes in a normal cell phone. There were 30 subjects
 21 were used as training data and 9 as test data.
 
-Accelerometers and gyros both record along x, y and z axes giving 6 features per timestep and curators of the 
-dataset attempted to remove the effect of gravity on the accelerometers giving an additional 3 features called
-body acceleration. 
+Accelerometers and gyros both record along x, y and z axes giving 6 features per timestep. Curators of the dataset 
+added three additional features per timestep. We achieved better performance omitting these features.  
 
 ![data viz](images/walking_raw_large.png)
 
@@ -44,7 +43,7 @@ Confusion Matrix
 #### Error Investigation
 Is it just one test subject that is driving all the error?
 
-Yes. Subject 10 is the only one of the 9 test subjects for whom we have classification error. 
+Yes. Most to all of the error came from subject number 10. 
 The neural network sometimes thinks his or her walking upstairs looks like walking downstairs
 and occasionally thinks that his her her walking looks like walking downstairs.
 

@@ -42,7 +42,10 @@ def get_timeseries_data(data_set='train'):
     data_dir = "{0}/data/UCI_HAR_Dataset/{1}/".format(PROJECT_HOME, data_set)
     timeseries_features = []
     timeseries_feature_names = []
-    for feature in ['body_acc', 'body_gyro', 'total_acc']:
+    for feature in ['body_acc',
+                    'body_gyro',
+                    #'total_acc'
+                    ]:
         for dim in ['x', 'y', 'z']:
             data_file = 'Inertial Signals/{0}_{1}_{2}.txt'.format(feature, dim, data_set)
             df = pd.read_csv(data_dir + data_file, header=None, sep='\s+')
@@ -70,7 +73,7 @@ def get_timeseries_data(data_set='train'):
     X = X[idx]
 
     # Scale the data:
-    for i in range(9):
+    for i in range(X.shape[1]):
         series = X[:, i, :, 0]
         mean = np.mean(series)
         scaling_factor = np.percentile(np.abs(series-mean), 90)

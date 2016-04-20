@@ -35,7 +35,7 @@ y_test = activity_test_one_hot
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 
-input_shape = (9, 128, 1)
+input_shape = (X_train.shape[1], 128, 1)
 nb_epoch = NB_EPOCH
 
 # network definition
