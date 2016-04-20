@@ -3,7 +3,7 @@ from keras.layers import Convolution2D, MaxPooling2D
 from keras.models import Sequential
 from keras.regularizers import l2
 
-from settings import DROPOUT, DROPOUT_FRACTION
+from settings import DROPOUT, DROPOUT_FRACTION, CONVO_DROPOUT_FRACTION
 
 
 def create_base_network(input_shape):
@@ -26,7 +26,7 @@ def create_base_network(input_shape):
                           ))
     seq.add(MaxPooling2D(pool_size=(2, 1)))
     if DROPOUT:
-        seq.add(Dropout(0.2))
+        seq.add(Dropout(CONVO_DROPOUT_FRACTION))
     seq.add(Flatten())
     seq.add(Dense(128, activation='relu',
                   ))

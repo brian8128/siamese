@@ -10,6 +10,7 @@ NB_EPOCH = 20
 NB_CONV_FILTERS = 64
 
 DROPOUT = True
+CONVO_DROPOUT_FRACTION = 0.2
 DROPOUT_FRACTION = 0.6
 
 # Dimension of the embedding space. Here it is artifically small so we can visulaize it

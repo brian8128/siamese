@@ -57,12 +57,10 @@ score = model.evaluate(X_test, y_test, verbose=0)
 print('Test score:', score[0])
 print('Test accuracy:', score[1])
 
+# Looks like subject 10 is the subject we get wrong most often, make
+# a confusion matrix just for him/her
 predicted_classes = np.expand_dims(np.argmax(pred, axis=1) + 1, axis=1)
-
 incorrect_prediction = (predicted_classes != activity_test)
-
-print(subject_test[incorrect_prediction])
-
 subject_10 = subject_test == 10
 
 predicted_classes_10 = predicted_classes[subject_10]
@@ -70,6 +68,7 @@ activity_test_10 = activity_test[subject_10]
 
 cm = confusion_matrix(activity_test, predicted_classes)
 cm_10 = confusion_matrix(activity_test_10, predicted_classes_10)
+
 
 def plot_confusion_matrix(cm, filename, title, cmap=plt.cm.YlGnBu):
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
