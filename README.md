@@ -44,6 +44,15 @@ Confusion Matrix
 #### Error Investigation
 Is it just one test subject that is driving all the error?
 
+Yes. Subject 10 is the only one of the 9 test subjects for whom we have classification error. 
+The neural network sometimes thinks his or her walking upstairs looks like walking downstairs
+and occasionally thinks that his her her walking looks like walking downstairs.
+
+** confusion matrix for subject 10 only **
+
+Although we had thousands of test observations, remember that these observations all came from 
+21 subjects. One reason why we might have had poor prediction accuracy for subject 10 
+is that none of our 21 train subjects had a similar enough gait to subject 10.
 
 ## Second Challenge: Fraud Detection
 
