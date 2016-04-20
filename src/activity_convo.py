@@ -58,23 +58,39 @@ print('Test score:', score[0])
 print('Test accuracy:', score[1])
 
 predicted_classes = np.expand_dims(np.argmax(pred, axis=1) + 1, axis=1)
+
+incorrect_prediction = (predicted_classes != activity_test)
+
+print(subject_test[incorrect_prediction])
+
+subject_10 = subject_test == 10
+
+predicted_classes_10 = predicted_classes[subject_10]
+activity_test_10 = activity_test[subject_10]
+
 cm = confusion_matrix(activity_test, predicted_classes)
+cm_10 = confusion_matrix(activity_test_10, predicted_classes_10)
 
-
-def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
+def plot_confusion_matrix(cm, filename, title, cmap=plt.cm.YlGnBu):
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
     plt.colorbar()
+    plt.title(title)
     tick_marks = np.arange(3)
     plt.xticks(tick_marks, ['Walking', 'Walking Upstairs', 'Walking Downstairs'], rotation=45)
     plt.yticks(tick_marks, ['Walking', 'Walking Upstairs', 'Walking Downstairs'])
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    plt.savefig('images/activity_prediction_confusion_matrix.png', bbox_inches='tight')
+    plt.savefig('images/{}'.format(filename), bbox_inches='tight')
+    plt.clf()
 
 cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+cm_10_normalized = cm_10.astype('float') / cm_10.sum(axis=1)[:, np.newaxis]
+
 
 print(cm)
 
-plot_confusion_matrix(cm_normalized)
+plot_confusion_matrix(cm_normalized, 'activity_prediction_confusion_matrix.png', "All Test Subjects")
+plot_confusion_matrix(cm_10_normalized, 'activity_prediction_confusion_matrix_10.png', "Subject 10 Only")
+
+

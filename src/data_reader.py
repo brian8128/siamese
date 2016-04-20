@@ -2,6 +2,7 @@ from __future__ import division, print_function, absolute_import
 from settings import PROJECT_HOME
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
 
 
 def get_data(data_set='train'):
@@ -84,17 +85,9 @@ def get_timeseries_data(data_set='train'):
 
 
 if __name__ == '__main__':
-    X, subjects, actions, _ = get_timeseries_data('train')
+    X, subjects, activities, _ = get_timeseries_data('test')
 
-    # Test the data is scaled.
-    for i in range(9):
-        series = X[:, i, :, 0]
-        print(np.max(series))
+    encoder = OneHotEncoder()
+    activity_train_one_hot = encoder.fit_transform(activities).todense()
 
-    print(X.shape)
-
-    print(np.unique(actions, return_counts=True))
-
-    print(np.unique(subjects))
-
-    print(X)
+    print(np.sum(activity_train_one_hot, axis=0))
