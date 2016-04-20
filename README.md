@@ -32,9 +32,13 @@ Test score: 0.144440290871 (This is cross entropy)
 Test accuracy: 0.979091564528
 
 Confusion Matrix
+
 [[491   0   5]
+
  [  0 447  24]
+
  [  0   0 420]]
+ 
  ![confusion matrix](images/activity_prediction_confusion_matrix.png)
  
 #### Error Investigation
