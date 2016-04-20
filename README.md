@@ -23,27 +23,22 @@ body acceleration.
 ![data viz](images/raw_data.png)
 
 ## First Challenge: Activity Classification
+### The Model: Convolutional Neural Network
+#### Archetecture
+#### Filter Visualization
+#### Accuracy
+Test score: 0.144440290871 (This is cross entropy)
+Test accuracy: 0.979091564528
+[[491   0   5]
+ [  0 447  24]
+ [  0   0 420]]
+#### Error Investigation
+Is it just one test subject that is driving all the error?
+
 
 ## Second Challenge: Fraud Detection
 
 
-## Requirements
-The algorithm must scale to millions of classes
-
-## Challenges
-Multi class classification scaling to millions of classes.  Not all classe are known at training time.
-A test subject walking upstairs may look very different from a test subject walking downstairs.
-
-The idea is to train a function G_W: X -> V, where V is some vector space and for x_1 and x_2 in X, G_W(x_1) is 
-close to G_W(x_2) iff x_1 and x_2 belong to the same class.
-
-## Results
-I trained the network on 21 test subjects and tested it on the remaining 9.  
-Using the convonet we achieved 94% accuracy telling whether two observations came from the same test
-subject or a different test subject.  
-
-## The App
-Fitness app for insurance companies.  Measure how much people exercise and give discounts.  Detect when they give their phones to friends to exercise for them and don't give credit.
 
 ## References
 [1] Raia Hadsell, Sumit Chopra and Yann LeCun. Dimensionality Reduction by Learning an Invariant Mapping. 
