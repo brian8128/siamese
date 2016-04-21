@@ -10,6 +10,7 @@ NB_CONV_FILTERS = 2
 
 DROPOUT = False
 DROPOUT_FRACTION = 0.1
+CONVO_DROPOUT_FRACTION = 0.2
 
 # Dimension of the embedding space. Here it is artifically small so we can visulaize it
 EMBEDDING_DIM = 2

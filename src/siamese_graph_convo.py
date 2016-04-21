@@ -22,7 +22,7 @@ from keras.layers import Convolution2D, MaxPooling2D, Input
 
 from settings import NB_EPOCH, INPUT_SHAPE, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, MARGIN
 
-from src import data_reader
+from src import data_source
 from src.base_network import create_base_network
 
 import matplotlib.pyplot as plt
@@ -119,8 +119,8 @@ def compute_accuracy(predictions, labels):
 
 
 # the data, shuffled and split between train and test sets
-X_train, subjects_train, _ = data_reader.get_timeseries_data('train')
-X_test, subjects_test, _ = data_reader.get_timeseries_data('test')
+X_train, subjects_train, _ = data_source.get_timeseries_data('train')
+X_test, subjects_test, _ = data_source.get_timeseries_data('test')
 
 y_train = subjects_train
 y_test = subjects_test

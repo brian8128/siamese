@@ -5,6 +5,8 @@ PROJECT_HOME = "/Users/Brian/workplace/projects/siamese/"
 
 INPUT_SHAPE = (9, 128, 1)
 
+CONVO_DROPOUT_FRACTION = 0.2
+
 # Settings for cnn
 NB_EPOCH = 1
 NB_CONV_FILTERS = 2
