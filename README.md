@@ -37,6 +37,7 @@ The CNN trains filters that are 8 timesteps long and slide along each observatio
 These two filters seem to detect steps and seem to be able to distinguish steps on the left from steps on the right.
 
 ![asymetric gait](images/convo_activations_asymetric_gait.png)
+*image_caption*
 
 #### Accuracy
 
