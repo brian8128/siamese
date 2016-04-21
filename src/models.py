@@ -11,7 +11,6 @@ from keras.optimizers import SGD, RMSprop, Adam
 from keras.models import model_from_json
 import os
 
-
 from settings import PROJECT_HOME, DROPOUT, DROPOUT_FRACTION, CONVO_DROPOUT_FRACTION, \
     NB_EPOCH, LEARNING_RATE
 
@@ -26,7 +25,7 @@ def create_base_network(input_shape):
     more traditional classification problem
     """
     seq = Sequential()
-    seq.add(Convolution2D(32, 8, 1,
+    seq.add(Convolution2D(16, 8, 1,
                           border_mode='valid',
                           activation='relu',
                           input_shape=input_shape,
@@ -120,6 +119,8 @@ def maybe_train_activity_model():
         opt = RMSprop(lr=LEARNING_RATE)
         model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
         model.load_weights(WEIGHTS_FILE)
+
+        print("Successfully loaded model from disk. No training needed.")
         return model
 
     except Exception:

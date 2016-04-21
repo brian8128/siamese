@@ -30,6 +30,12 @@ high accuracy on our classification task.
 ### The Model: Convolutional Neural Network
 #### Archetecture
 #### Filter Visualization
+
+The CNN trains filters that are 8 timesteps long and slide along each observation providing an activation value for each point.
+These two filters seem to detect steps and seem to be able to distinguish steps on the left from steps on the right.
+
+[!asymetric gait](images/convo_activations_asymetric_gait.png)
+
 #### Accuracy
 
 Test score (cross entropy): 0.0458956248169

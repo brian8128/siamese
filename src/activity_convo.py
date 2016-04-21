@@ -15,6 +15,9 @@ from src.data_source import get_timeseries_data
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 
+from keras import backend as K
+
+
 
 model = maybe_train_activity_model()
 X_test, subject_test, activity_test, _ = get_timeseries_data('test')
@@ -61,4 +64,15 @@ plot_confusion_matrix(cm_normalized, 'activity_prediction_confusion_matrix.png',
 plot_confusion_matrix(cm_10_normalized, 'activity_prediction_confusion_matrix_10.png', "Subject 10 Only")
 
 
-print(model.layers[0].get_weights()[0].shape)
+def get_convo_activations(model, X):
+    """
+    Returns the output of the first layer of the model for the given data.
+
+    :param model:
+    :param data:
+    :return:
+    """
+    convout1 = model.layers[0]
+    convout1_f = K.function(model.inputs, [convout1.output])
+
+    return convout1_f[X]

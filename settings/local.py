@@ -7,7 +7,7 @@ PROJECT_HOME = "/Users/Brian/workplace/projects/siamese/"
 NB_EPOCH = 20
 
 # Settings for cnn
-NB_CONV_FILTERS = 64
+NB_CONV_FILTERS = 16
 
 DROPOUT = True
 CONVO_DROPOUT_FRACTION = 0.2
