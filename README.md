@@ -70,11 +70,19 @@ Question: Do most subjects have higher variance in gyro and for downstairs?
 Does subject 10 have higher variance for all activities?
 
 ## Fraud Detection
+
 As soon as we start offering money to people to exercise we will have created a financial incentive for
 fraud. It is expected that some users will try to game the system by having their friends exercise for them.
-One person could easily carry several phones and go for a jog. In order to combat this we attemt to identify 
-a unique signature in each subject's gait which we can use to determine whether or not it is in fact the customer
-performing the exercise. 
+One person could easily carry several phones and go for a jog.  If we allow this kind of behavior customers
+will exercise less and everyone loses.
+
+### Identity Preserving Mapping
+
+Inspired by [1] we train an identity preserving mapping from our data to a low dimensional vector space. 
+The mapping 'forgets' what activity and how many steps the subject took but preserves a 'signature' representing
+the subjects unique gait. We train this mapping using a *contrastive loss function*. 
+
+$$G_W:X -> V$$
 
 
 
