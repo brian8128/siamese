@@ -76,14 +76,21 @@ fraud. It is expected that some users will try to game the system by having thei
 One person could easily carry several phones and go for a jog.  If we allow this kind of behavior customers
 will exercise less and everyone loses.
 
+### Why it's Hard
+
+We need to determine the subject based on an observation. However, we don't want to retrain the model
+every time we add a user. We want to be adding users constantly! So we can't build a model with training data
+from all the users because we don't know all the users at training time. We can't use the archetecture we used
+above because we can't have an output channel for every user.
+
 ### Identity Preserving Mapping
 
-Inspired by [1] we train an identity preserving mapping from our data to a low dimensional vector space. 
-The mapping 'forgets' what activity and how many steps the subject took but preserves a 'signature' representing
-the subjects unique gait. We train this mapping using a *contrastive loss function*. 
-
-$$G_W:X -> V$$
-
+We train an identity preserving mapping from our data to a low dimensional vector space, the signature space, using
+the *contrastive loss function* described in [1]. We assume we will be able to get at least 1 observation
+per user to use as the user signature. (We may need to make it difficult to just install the app on someone
+else's phone, but once we know the app is on the right user's phone we can record them walking.) Once
+we have the users signature, v<sub>s</sub>, we will predict a new signature, v<sub>n</sub>, is from the same
+user if ||v<sub>s</sub> - v<sub>n</sub>|| is sufficiently small.
 
 
 ## References
