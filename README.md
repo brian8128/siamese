@@ -1,4 +1,6 @@
-## The Idea
+Currently a work in progress, this repo is my final project for the Galvanize Data Science Immersive.
+
+## The Project
 
 When people are healthier, health insurance companies are wealthier. In this project I do some of the machine learning
 work that would be needed to for a health insurance company to create a fitness app. 
