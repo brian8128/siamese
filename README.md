@@ -21,7 +21,12 @@ added three additional features per timestep attempting to remove the effect of 
 
 ![data viz](images/raw_data.png)
 
-## First Challenge: Activity Classification
+## Activity Classification
+The first part of this project is identifying which activity the subject is doing based on the accelerameter and gyro
+data. We trained a small Convolutional Neural Network for the task with one output channel for each activity. 
+In only a few minutes of training on CPU (most of the time a large GPU is required to train a CNN) we achieved
+high accuracy on our classification task.
+
 ### The Model: Convolutional Neural Network
 #### Archetecture
 #### Filter Visualization
@@ -56,7 +61,12 @@ none, or not enough of our train subjects had a similar enough gait to subject 1
 Question: Do most subjects have higher variance in gyro and for downstairs? 
 Does subject 10 have higher variance for all activities?
 
-## Second Challenge: Fraud Detection
+## Fraud Detection
+As soon as we start offering money to people to exercise we will have created a financial incentive for
+fraud. It is expected that some users will try to game the system by having their friends exercise for them.
+One person could easily carry several phones and go for a jog. In order to combat this we attemt to identify 
+a unique signature in each subject's gait which we can use to determine whether or not it is in fact the customer
+performing the exercise. 
 
 
 
