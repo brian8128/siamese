@@ -65,3 +65,5 @@ target/
 .idea/*
 
 *.xml
+
+saved_models/*

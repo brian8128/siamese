@@ -3,14 +3,14 @@ PROJECT_HOME = "/Users/Brian/workplace/projects/siamese/"
 # Settings for a test run.  We just want to see that we can run without error
 # no expectation of reasonable prediction accuracy
 
-INPUT_SHAPE = (9, 128, 1)
+INPUT_SHAPE = (6, 128, 1)
 
 CONVO_DROPOUT_FRACTION = 0.2
 
 # Settings for cnn
 NB_EPOCH = 1
-NB_CONV_FILTERS = 2
-
+L1_FILTERS = 2
+L2_FILTERS = 4
 # Dimension of the embedding space. Here it is artifically small so we can visulaize it
 EMBEDDING_DIM = 8
 

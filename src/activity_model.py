@@ -6,15 +6,15 @@ from keras.layers import Convolution2D, MaxPooling2D
 from keras.models import Sequential
 from keras.regularizers import l2
 from src import data_source
-from keras.optimizers import SGD, RMSprop, Adam
+from keras.optimizers import RMSprop
 # model reconstruction from JSON:
 from keras.models import model_from_json
 import os
 
 from settings import PROJECT_HOME, DROPOUT, DROPOUT_FRACTION, CONVO_DROPOUT_FRACTION, \
-    NB_EPOCH, LEARNING_RATE
+    NB_EPOCH, LEARNING_RATE, INPUT_SHAPE, L1_FILTERS, L2_FILTERS
 
-ARCHETECTURE_FILE = "{}/saved_models/archetecture.json".format(PROJECT_HOME)
+ARCHITECTURE_FILE = "{}/saved_models/archetecture.json".format(PROJECT_HOME)
 WEIGHTS_FILE = '{}/saved_models/model_weights.h5'.format(PROJECT_HOME)
 
 
@@ -25,14 +25,14 @@ def create_base_network(input_shape):
     more traditional classification problem
     """
     seq = Sequential()
-    seq.add(Convolution2D(16, 8, 1,
+    seq.add(Convolution2D(L1_FILTERS, 8, 1,
                           border_mode='valid',
                           activation='relu',
                           input_shape=input_shape,
                           name="input"
                           ))
     seq.add(MaxPooling2D(pool_size=(2, 1)))
-    seq.add(Convolution2D(64, 4, 1,
+    seq.add(Convolution2D(L2_FILTERS, 4, 1,
                           border_mode='valid',
                           activation='relu'
                           ))
@@ -54,15 +54,15 @@ def create_base_network(input_shape):
     return seq
 
 
-def create_activity_model(input_shape):
+def create():
     # network definition
-    model = create_base_network(input_shape)
+    model = create_base_network(INPUT_SHAPE)
     # output layer
     model.add(Dense(3, activation='softmax'))
 
     return model
 
-def train_activity_model():
+def train():
     """
     Constructs the activity mode, gets data from data_source, trains the model
     saves model and returns the model.
@@ -81,7 +81,7 @@ def train_activity_model():
     input_shape = (X_train.shape[1], 128, 1)
     nb_epoch = NB_EPOCH
 
-    model = create_activity_model(input_shape=input_shape)
+    model = create(input_shape=input_shape)
 
     opt = RMSprop(lr=LEARNING_RATE)
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
@@ -93,13 +93,13 @@ def train_activity_model():
 
     # save as JSON
     json_string = model.to_json()
-    with open(ARCHETECTURE_FILE, "w") as file:
+    with open(ARCHITECTURE_FILE, "w") as file:
         file.write(json_string)
     model.save_weights(WEIGHTS_FILE)
 
     return model
 
-def maybe_train_activity_model():
+def maybe_train():
     """
     Tries to load a trained model from disk but trains a new one
     if we can't load it from disk.
@@ -113,7 +113,7 @@ def maybe_train_activity_model():
             raise Exception()
 
         print("attempting to load model from disk")
-        with open(ARCHETECTURE_FILE, "r") as file:
+        with open(ARCHITECTURE_FILE, "r") as file:
             json_string = file.read()
         model = model_from_json(json_string)
         opt = RMSprop(lr=LEARNING_RATE)
@@ -125,6 +125,6 @@ def maybe_train_activity_model():
 
     except Exception:
         print("Unable to load model from disk. Training a new one")
-        return train_activity_model()
+        return train()
 
 

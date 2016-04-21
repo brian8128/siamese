@@ -1,2 +1,2 @@
 
-INPUT_SHAPE = (9, 128, 1)
+INPUT_SHAPE = (6, 128, 1)
