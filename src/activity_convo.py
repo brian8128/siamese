@@ -10,15 +10,13 @@ from __future__ import division
 import numpy as np
 np.random.seed(1)  # for reproducibility
 
-from src.models import train_activity_model
+from src.models import maybe_train_activity_model
 from src.data_source import get_timeseries_data
-
 from sklearn.metrics import confusion_matrix
-
 import matplotlib.pyplot as plt
 
 
-model = train_activity_model()
+model = maybe_train_activity_model()
 X_test, subject_test, activity_test, _ = get_timeseries_data('test')
 
 pred = model.predict(X_test)
@@ -29,8 +27,6 @@ print('Test accuracy:', score[1])
 
 # Looks like subject 10 is the subject we get wrong most often, make
 # a confusion matrix just for him/her
-
-
 
 predicted_classes = np.expand_dims(np.argmax(pred, axis=1) + 1, axis=1)
 activity_test_classes = (np.argmax(activity_test, axis=1) + 1).getA()

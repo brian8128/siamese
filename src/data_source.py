@@ -100,5 +100,3 @@ if __name__ == '__main__':
     activity_train_one_hot = encoder.fit_transform(activities).todense()
 
     print(np.sum(activity_train_one_hot, axis=0))
-
-    print()

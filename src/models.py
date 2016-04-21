@@ -7,8 +7,16 @@ from keras.models import Sequential
 from keras.regularizers import l2
 from src import data_source
 from keras.optimizers import SGD, RMSprop, Adam
+# model reconstruction from JSON:
+from keras.models import model_from_json
+import os
 
-from settings import DROPOUT, DROPOUT_FRACTION, CONVO_DROPOUT_FRACTION, NB_EPOCH, LEARNING_RATE
+
+from settings import PROJECT_HOME, DROPOUT, DROPOUT_FRACTION, CONVO_DROPOUT_FRACTION, \
+    NB_EPOCH, LEARNING_RATE
+
+ARCHETECTURE_FILE = "{}/saved_models/archetecture.json".format(PROJECT_HOME)
+WEIGHTS_FILE = '{}/saved_models/model_weights.h5'.format(PROJECT_HOME)
 
 
 def create_base_network(input_shape):
@@ -84,6 +92,12 @@ def train_activity_model():
               batch_size=128,
               nb_epoch=nb_epoch)
 
+    # save as JSON
+    json_string = model.to_json()
+    with open(ARCHETECTURE_FILE, "w") as file:
+        file.write(json_string)
+    model.save_weights(WEIGHTS_FILE)
+
     return model
 
 def maybe_train_activity_model():
@@ -92,4 +106,24 @@ def maybe_train_activity_model():
     if we can't load it from disk.
     :return: trained model
     """
-    pass
+
+    try:
+        if os.getenv('FORCE_TRAIN', "FALSE").lower() == 'true':
+            # Skip down to the except block
+            # Ugly - how to make this better?
+            raise Exception()
+
+        print("attempting to load model from disk")
+        with open(ARCHETECTURE_FILE, "r") as file:
+            json_string = file.read()
+        model = model_from_json(json_string)
+        opt = RMSprop(lr=LEARNING_RATE)
+        model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+        model.load_weights(WEIGHTS_FILE)
+        return model
+
+    except Exception:
+        print("Unable to load model from disk. Training a new one")
+        return train_activity_model()
+
+
