@@ -25,6 +25,11 @@ We have 3285 training observations and 1387 test observations.
 
 ![data viz](images/raw_data.png)
 
+Subjects wore the phone in a harness around the torso so the phone was in a similar orientation relative to the torso
+for all test subjects.
+
+![test subject](images/test_subject.png)
+
 ## Activity Classification
 The first part of this project is identifying which activity the subject is doing based on the accelerameter and gyro
 data. We trained a small Convolutional Neural Network for the task with one output channel for each activity. 
