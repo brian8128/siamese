@@ -125,3 +125,7 @@ http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
 
 [2] Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. A Public Domain Dataset for Human Activity Recognition Using Smartphones. 21th European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning, ESANN 2013. Bruges, Belgium 24-26 April 2013.
 https://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+[3] Michael P. O’Donnell, Alyssa B. Schultz, and Louis Yen. The Portion of Health Care Costs Associated With Lifestyle-Related Modifiable Health Risks Based on a Sample of 223,461 Employees in Seven Industries. Journal of occupational and environmental medicine / American College of Occupational and Environmental Medicine. Dec 2015. 
+
+https://www.researchgate.net/publication/286219235_The_Portion_of_Health_Care_Costs_Associated_With_Lifestyle-Related_Modifiable_Health_Risks_Based_on_a_Sample_of_223461_Employees_in_Seven_Industries_The_UM-HMRC_Study
