@@ -86,12 +86,12 @@ above because we can't have an output channel for every user.
 
 ### Identity Preserving Mapping
 
-We train an identity preserving mapping from our data to a low dimensional vector space, the signature space, using
+We train an identity preserving mapping, G<sub>W</sub>, from our data to a low dimensional vector space, the signature space, using
 the *contrastive loss function* described in [1]. We assume we will be able to get at least 1 observation
 per user to use as the user signature. (We may need to make it difficult to just install the app on someone
-else's phone, but once we know the app is on the right user's phone we can record them walking.) Once
-we have the users signature, v<sub>s</sub>, we will predict a new signature, v<sub>n</sub>, is from the same
-user if ||v<sub>s</sub> - v<sub>n</sub>|| is sufficiently small.
+else's phone, but once we know the app is on the right user's phone we can record them walking.) After W is 
+trained given observations x<sub>1</sub> and x<sub>2</sub> we will predict that x<sub>1</sub> and x<sub>2</sub>
+are in the same class if ||G<sub>W</sub>(x<sub>1</sub>) - G<sub>W</sub>(x<sub>2</sub>)|| is small.
 
 ![contrastive loss training](images/ContrastiveLossTraining.png)
 
