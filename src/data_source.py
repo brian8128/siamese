@@ -32,7 +32,7 @@ def get_data(data_set='train'):
     return X[perm], y_subject[perm]
 
 
-def get_timeseries_data(data_set='train', one_hot=True):
+def get_timeseries_data(data_set='train'):
     """
     :param data_set: 'train' for train data or 'test' for test data
     :return: tuple containing the gyro data, the subject id, and the activity id
@@ -89,8 +89,10 @@ def get_timeseries_data(data_set='train', one_hot=True):
     # Will using the fit transform for both test and train be a problem?
     # It will certainly become very evident if it is
     activity_one_hot = encoder.fit_transform(activity[perm]).todense()
-
-    return X[perm], subject[perm], activity_one_hot, map(lambda x: x[5:], timeseries_feature_names)
+    X = X[perm]
+    subject = subject[perm]
+    feature_names = map(lambda x: x[5:], timeseries_feature_names)
+    return X, subject, activity_one_hot, feature_names
 
 
 if __name__ == '__main__':

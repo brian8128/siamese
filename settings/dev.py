@@ -11,6 +11,9 @@ CONVO_DROPOUT_FRACTION = 0.2
 NB_EPOCH = 1
 L1_FILTERS = 2
 L2_FILTERS = 4
+
+DROPOUT = True
+DROPOUT_FRACTION = 0.2
 # Dimension of the embedding space. Here it is artifically small so we can visulaize it
 EMBEDDING_DIM = 8
 

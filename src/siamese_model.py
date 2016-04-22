@@ -221,6 +221,22 @@ def maybe_train():
         print("Unable to load model from disk. Training a new one")
         return train()
 
+def get_embedding_function(trained_model):
+    """
+    Given a trained model, get the weights out that we need to construct only
+    the embedding function
+    :param trained_model:
+    :return: an embedding function
+    """
+    # https://github.com/fchollet/keras/issues/41
+
+    # Ugly but it gets the job done
+    embedding = trained_model.layers[2]
+
+    embedding_function = K.function([embedding.layers[0].input, K.learning_phase()], embedding.layers[-1].output)
+
+    return embedding_function
+
 
 
 
@@ -233,11 +249,7 @@ def maybe_train():
 
 # Intermediate outputs seem to be broken in 1.0 :(
 
-# # get the symbolic outputs of each "key" layer (we gave them unique names).
-# layer_dict = dict([(layer.name, layer) for layer in base_network.layers])
-#
-# embedding_function = K.function(base_network.inputs,
-#                     [layer_dict['embedding'].output])
+
 #
 # embedding = embedding_function([observations])[0]
 #
@@ -257,11 +269,19 @@ if __name__ == '__main__':
 
     tr_pairs, tr_y, te_pairs, te_y = get_data()
 
-    # compute final accuracy on training and test sets
-    pred = model.predict([tr_pairs[:, 0], tr_pairs[:, 1]])
-    tr_acc = compute_accuracy(pred, tr_y)
-    pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
-    te_acc = compute_accuracy(pred, te_y)
+    # # compute final accuracy on training and test sets
+    # pred = model.predict([tr_pairs[:, 0], tr_pairs[:, 1]])
+    # tr_acc = compute_accuracy(pred, tr_y)
+    # pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
+    # te_acc = compute_accuracy(pred, te_y)
+    #
+    # print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
+    # print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
 
-    print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
-    print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
+    model = maybe_train()
+    f = get_embedding_function(model)
+
+    X, subject, activity_one_hot, feature_names = data_source.get_timeseries_data()
+
+    learning_phase = np.ones(X.shape[0])
+    print (f([X, 1]))
