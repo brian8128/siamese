@@ -93,7 +93,7 @@ else's phone, but once we know the app is on the right user's phone we can recor
 we have the users signature, v<sub>s</sub>, we will predict a new signature, v<sub>n</sub>, is from the same
 user if ||v<sub>s</sub> - v<sub>n</sub>|| is sufficiently small.
 
-![contrastive loss training](images/ContrastiveLossTraining.svg)
+![contrastive loss training](images/ContrastiveLossTraining.png)
 
 
 ## References
