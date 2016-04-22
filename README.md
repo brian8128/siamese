@@ -54,11 +54,8 @@ Test accuracy: 0.984138428262
 ![confusion matrix](images/activity_prediction_confusion_matrix.png)
  
 #### Error Investigation
-Is it just one test subject that is driving all the error?
-
-Yes. Most to all of the error came from subject number 10. 
-The neural network sometimes thinks his or her walking upstairs looks like walking downstairs
-and occasionally thinks that his her her walking looks like walking downstairs.
+Most to all of the error came from subject number 10. It can distinguish walking from walking upstairs
+well but it gets walking downstairs confused with both other classes.
 
 ![confusion matrix](images/activity_prediction_confusion_matrix_10.png)
 
