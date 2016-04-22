@@ -93,6 +93,24 @@ are in the same class if ||G<sub>W</sub>(x<sub>1</sub>) - G<sub>W</sub>(x<sub>2<
 
 ![contrastive loss training](images/ContrastiveLossTraining2.png)
 
+### Accuracy
+
+We assume we have one observation, x, from a user (who was not included in the training data) and we need to 
+predict whether another observation, y, comes from the same user. We will set some threshold, k, and predict
+that x and y come from the same user if ||G<sub>W</sub>(x) - G<sub>W</sub>(y)|| < k. Varying k, we obtain an ROC
+curve. Our AUC is ???
+
+**TODO: image of the ROC
+
+## Conclusions
+
+There is a lot of information encoded in person's gait, which can be recovered using cell phones and convolutional
+neural networks. Other applications for this kind of information may include:
+
+* Diagnosing Parkinsons
+* Detecting injuries
+* Providing feedback on running form
+
 
 ## References
 [1] Raia Hadsell, Sumit Chopra and Yann LeCun. Dimensionality Reduction by Learning an Invariant Mapping. 
