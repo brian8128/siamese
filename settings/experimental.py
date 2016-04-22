@@ -12,18 +12,18 @@ L2_FILTERS = 64
 
 DROPOUT = True
 CONVO_DROPOUT_FRACTION = 0.2
-DROPOUT_FRACTION = 0.6
+DROPOUT_FRACTION = 0.5
 
 # Dimension of the embedding space. Here it is artifically small so we can visulaize it
-EMBEDDING_DIM = 64
+EMBEDDING_DIM = 32
 
 FULLY_CONNECTED_SIZE = 128
 
 # Learning Rate. Here we make it smaller because we seem to diverge with the normal learning
 # rate and such a small embedding space
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.00001
 OPTIMIZER = 'sgd'
 
 # Margin for the contrastive loss function.  How far apart two observations from different
 # classes need to be before the error is zero
-MARGIN = 0.5
+MARGIN = 0.6

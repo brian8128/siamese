@@ -265,7 +265,6 @@ def get_embedding_function(trained_model):
 # plt.savefig('foo.png', bbox_inches='tight')
 
 if __name__ == '__main__':
-    model = maybe_train()
 
     tr_pairs, tr_y, te_pairs, te_y = get_data()
 
