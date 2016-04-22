@@ -129,3 +129,18 @@ https://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartph
 [3] Michael P. O’Donnell, Alyssa B. Schultz, and Louis Yen. The Portion of Health Care Costs Associated With Lifestyle-Related Modifiable Health Risks Based on a Sample of 223,461 Employees in Seven Industries. Journal of occupational and environmental medicine / American College of Occupational and Environmental Medicine. Dec 2015. 
 
 https://www.researchgate.net/publication/286219235_The_Portion_of_Health_Care_Costs_Associated_With_Lifestyle-Related_Modifiable_Health_Risks_Based_on_a_Sample_of_223461_Employees_in_Seven_Industries_The_UM-HMRC_Study
+
+## Commands
+
+STAGE={dev|local|prod|exp} FORCE_TRAIN={true|false} python src/{siamese_model|activity_model}.py
+
+STAGE:
+
+* dev - very small model, just to see if it runs without error
+* local - settings for local run
+* prod - settings for run on EC2 with GPU
+* exp - experimental settings
+ 
+FORCE_TRAIN: 
+
+If false we will attempt to load the model from disk. If true we will train a new model and overwrite the existing model on disk.
