@@ -74,12 +74,11 @@ fraud. It is expected that some users will try to game the system by having thei
 One person could easily carry several phones and go for a jog.  If we allow this kind of behavior customers
 will exercise less and everyone loses.
 
-### Why it's Hard
+### Challenges
 
-We need to determine the subject based on an observation. However, we don't want to retrain the model
-every time we add a user. We want to be adding users constantly! So we can't build a model with training data
-from all the users because we don't know all the users at training time. We can't use the archetecture we used
-above because we can't have an output channel for every user.
+We want to add users more quickly than we train new models so we don't have labeled data from all the classes
+at training time. (We don't even know what all the classes are at training time!) This means we'll have to use
+a different approach from what we did above.
 
 ### Identity Preserving Mapping
 
@@ -91,6 +90,8 @@ trained given observations x<sub>1</sub> and x<sub>2</sub> we will predict that 
 are in the same class if ||G<sub>W</sub>(x<sub>1</sub>) - G<sub>W</sub>(x<sub>2</sub>)|| is small.
 
 ![contrastive loss training](images/ContrastiveLossTraining.png)
+
+![contrastive loss training](images/ContrastiveLossTraining2.png)
 
 
 ## References
