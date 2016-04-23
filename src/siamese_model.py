@@ -249,6 +249,17 @@ def maybe_train(param_dict):
     :return: trained model
     """
 
+    def contrastive_loss(y, d):
+        '''Contrastive loss from Hadsell-et-al.'06
+        http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
+
+        We want y and d to be different.
+        Loss is 0 if y = 1 and d = 0
+        Loss is 1 if y=d=1 or y=d=0
+        '''
+        margin = param_dict['margin']
+        return K.mean(y * K.square(d) + (1 - y) * K.square(K.maximum(margin - d, 0)))
+
     try:
         if os.getenv('FORCE_TRAIN', "FALSE").lower() == 'true':
             # Skip down to the except block
