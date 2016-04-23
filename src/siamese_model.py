@@ -231,7 +231,7 @@ def train(param_dict, save=True):
     model.fit([tr_pairs[:, 0], tr_pairs[:, 1]], tr_y,
               validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
               batch_size=128,
-              nb_epoch=NB_EPOCH)
+              nb_epoch=param_dict['epochs'])
 
     if save:
         # save as JSON
