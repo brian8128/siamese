@@ -21,14 +21,14 @@ if __name__ == '__main__':
                     "c2_dropout":       [0, 0.05, 0.1, 0.3, .5],
                     "c2_width":         [4, 8, 16],
                     "d1_size":          [32, 64, 128, 258],
-                    "d1_W_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
+                    "d1_W_regularizer": [0.001, 0.01, 0.1],
                     "d1_b_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
                     "d1_dropout":       [0, 0.05, 0.1, 0.3],
                     "embedding_dim":    [4, 16, 64],
                     "embedding_W_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
                     "embedding_b_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
-                    "margin":            [3, 5, 8, 13],
-                    "epochs":            [20]
+                    "margin":            [8, 13, 21],
+                    "epochs":            [25]
                   }
 
     with open("{}/tuner_output/model_info.csv".format(PROJECT_HOME), 'a') as f:
