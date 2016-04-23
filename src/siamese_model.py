@@ -26,9 +26,7 @@ from keras.regularizers import l2
 from keras.layers import Input
 
 from settings import NB_EPOCH, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, \
-    MARGIN, INPUT_SHAPE, PROJECT_HOME, DROPOUT, DROPOUT_FRACTION, \
-    L1_FILTERS, L2_FILTERS, CONVO_DROPOUT_FRACTION, FULLY_CONNECTED_SIZE, \
-    L3_FILTERS, CONVO_L2_REGULARIZER, DENSE_L2_REGULARIZER
+    MARGIN, INPUT_SHAPE, PROJECT_HOME
 from keras.models import model_from_json
 
 from src import data_source
@@ -50,16 +48,7 @@ def eucl_dist_output_shape(shapes):
     return shape1
 
 
-def contrastive_loss(y, d):
-    '''Contrastive loss from Hadsell-et-al.'06
-    http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
 
-    We want y and d to be different.
-    Loss is 0 if y = 1 and d = 0
-    Loss is 1 if y=d=1 or y=d=0
-    '''
-    margin = MARGIN
-    return K.mean(y * K.square(d) + 5 * (1 - y) * K.square(K.maximum(margin - d, 0)))
 
 
 def create_pairs(x, y):
@@ -97,23 +86,23 @@ def create_pairs(x, y):
 
     return np.array(pairs), np.array(labels)
 
-def create_base_network(input_shape):
+def create_base_network(input_shape, param_dict):
     """
     Base network to be shared (eq. to feature extraction).
     This is shared among the 'siamese' embedding as well as the
     more traditional classification problem
     """
     seq = Sequential()
-    seq.add(Convolution2D(L1_FILTERS, 8, 1,
+    seq.add(Convolution2D(param_dict['c1_filters'], 8, 1,
                           border_mode='valid',
                           activation='relu',
                           input_shape=input_shape,
                           name="input",
-                          W_regularizer = l2(CONVO_L2_REGULARIZER),
-                          b_regularizer = l2(CONVO_L2_REGULARIZER),
+                          W_regularizer = l2(param_dict['c1_W_regularizer']),
+                          b_regularizer = l2(param_dict['c1_b_regularizer']),
                           ))
     seq.add(MaxPooling2D(pool_size=(2, 1)))
-    # seq.add(Dropout(CONVO_DROPOUT_FRACTION))
+    seq.add(Dropout(param_dict['c1_dropout']))
     # seq.add(Convolution2D(L2_FILTERS, 4, 1,
     #                       border_mode='valid',
     #                       activation='relu',
@@ -129,13 +118,13 @@ def create_base_network(input_shape):
     #                       ))
     #
     # seq.add(MaxPooling2D(pool_size=(2, 1)))
-    seq.add(Dropout(CONVO_DROPOUT_FRACTION))
+    # seq.add(Dropout(CONVO_DROPOUT_FRACTION))
     seq.add(Flatten())
-    seq.add(Dense(FULLY_CONNECTED_SIZE, activation='relu',
-                  W_regularizer=l2(DENSE_L2_REGULARIZER),
-                  b_regularizer=l2(DENSE_L2_REGULARIZER),
+    seq.add(Dense(param_dict['d1_size'], activation='relu',
+                  W_regularizer=l2(param_dict['d1_W_regularizer']),
+                  b_regularizer=l2(param_dict['d1_b_regularizer']),
                   ))
-    seq.add(Dropout(DROPOUT_FRACTION))
+    seq.add(Dropout(param_dict['d1_dropout']))
 
     return seq
 
@@ -146,11 +135,11 @@ def create_base_network_with_embedding(param_dict):
     """
 
     # Borrow the base network from the activity prediction model
-    base_network = create_base_network(INPUT_SHAPE)
+    base_network = create_base_network(INPUT_SHAPE, param_dict)
 
     embedding = Dense(param_dict['embedding_dim'], activation='linear',
-                      W_regularizer=l2(DENSE_L2_REGULARIZER),
-                      b_regularizer=l2(DENSE_L2_REGULARIZER),
+                      W_regularizer=l2(param_dict['embedding_W_regularizer']),
+                      b_regularizer=l2(param_dict['embedding_b_regularizer']),
                       name='embedding'
                       )
 
@@ -216,6 +205,17 @@ def get_data():
 
 
 def train(param_dict, save=True):
+
+    def contrastive_loss(y, d):
+        '''Contrastive loss from Hadsell-et-al.'06
+        http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
+
+        We want y and d to be different.
+        Loss is 0 if y = 1 and d = 0
+        Loss is 1 if y=d=1 or y=d=0
+        '''
+        margin = param_dict['margin']
+        return K.mean(y * K.square(d) + (1 - y) * K.square(K.maximum(margin - d, 0)))
 
     model = create(param_dict)
 
