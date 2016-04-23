@@ -27,7 +27,7 @@ if __name__ == '__main__':
                     "embedding_dim":    [4, 16, 64],
                     "embedding_W_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
                     "embedding_b_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
-                    "margin":            [1, 2, 5]
+                    "margin":            [3, 5, 8, 13]
                   }
 
     with open("{}/tuner_output/model_info.csv".format(PROJECT_HOME), 'a') as f:
