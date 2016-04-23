@@ -16,18 +16,23 @@ import numpy as np
 np.random.seed(1)  # for reproducibility
 
 from keras.models import Model
-from keras.layers.core import Dense, Lambda
+from keras.layers.core import Lambda
+from keras.layers.core import Dense, Dropout, Flatten
+from keras.layers import Convolution2D, MaxPooling2D
+from keras.models import Sequential
 from keras.optimizers import SGD, RMSprop
 from keras import backend as K
 from keras.regularizers import l2
 from keras.layers import Input
 
-from settings import NB_EPOCH, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, MARGIN, INPUT_SHAPE, PROJECT_HOME
+from settings import NB_EPOCH, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, \
+    MARGIN, INPUT_SHAPE, PROJECT_HOME, DROPOUT, DROPOUT_FRACTION, \
+    L1_FILTERS, L2_FILTERS, CONVO_DROPOUT_FRACTION, FULLY_CONNECTED_SIZE, \
+    L3_FILTERS, CONVO_L2_REGULARIZER, DENSE_L2_REGULARIZER
 from keras.models import model_from_json
 
-
 from src import data_source
-from src import activity_model
+from sklearn.metrics import roc_auc_score
 
 import os
 
@@ -54,7 +59,7 @@ def contrastive_loss(y, d):
     Loss is 1 if y=d=1 or y=d=0
     '''
     margin = MARGIN
-    return K.mean(y * K.square(d) + (1 - y) * K.square(K.maximum(margin - d, 0)))
+    return K.mean(y * K.square(d) + 5 * (1 - y) * K.square(K.maximum(margin - d, 0)))
 
 
 def create_pairs(x, y):
@@ -92,17 +97,60 @@ def create_pairs(x, y):
 
     return np.array(pairs), np.array(labels)
 
-def create_base_network_with_embedding():
+def create_base_network(input_shape):
+    """
+    Base network to be shared (eq. to feature extraction).
+    This is shared among the 'siamese' embedding as well as the
+    more traditional classification problem
+    """
+    seq = Sequential()
+    seq.add(Convolution2D(L1_FILTERS, 8, 1,
+                          border_mode='valid',
+                          activation='relu',
+                          input_shape=input_shape,
+                          name="input",
+                          W_regularizer = l2(CONVO_L2_REGULARIZER),
+                          b_regularizer = l2(CONVO_L2_REGULARIZER),
+                          ))
+    seq.add(MaxPooling2D(pool_size=(2, 1)))
+    # seq.add(Dropout(CONVO_DROPOUT_FRACTION))
+    # seq.add(Convolution2D(L2_FILTERS, 4, 1,
+    #                       border_mode='valid',
+    #                       activation='relu',
+    #                       W_regularizer=l2(CONVO_L2_REGULARIZER),
+    #                       b_regularizer=l2(CONVO_L2_REGULARIZER),
+    #                       ))
+    # seq.add(MaxPooling2D(pool_size=(2, 1)))
+    # seq.add(Convolution2D(L3_FILTERS, 4, 1,
+    #                       border_mode='valid',
+    #                       activation='relu',
+    #                       W_regularizer=l2(0.001),
+    #                       b_regularizer=l2(0.001),
+    #                       ))
+    #
+    # seq.add(MaxPooling2D(pool_size=(2, 1)))
+    seq.add(Dropout(CONVO_DROPOUT_FRACTION))
+    seq.add(Flatten())
+    seq.add(Dense(FULLY_CONNECTED_SIZE, activation='relu',
+                  W_regularizer=l2(DENSE_L2_REGULARIZER),
+                  b_regularizer=l2(DENSE_L2_REGULARIZER),
+                  ))
+    seq.add(Dropout(DROPOUT_FRACTION))
+
+    return seq
+
+
+def create_base_network_with_embedding(param_dict):
     """
     Take the base network and add an embedding layer
     """
 
     # Borrow the base network from the activity prediction model
-    base_network = activity_model.create_base_network(INPUT_SHAPE)
+    base_network = create_base_network(INPUT_SHAPE)
 
-    embedding = Dense(EMBEDDING_DIM, activation='linear',
-                      W_regularizer=l2(0.01),
-                      b_regularizer=l2(0.01),
+    embedding = Dense(param_dict['embedding_dim'], activation='linear',
+                      W_regularizer=l2(DENSE_L2_REGULARIZER),
+                      b_regularizer=l2(DENSE_L2_REGULARIZER),
                       name='embedding'
                       )
 
@@ -126,9 +174,9 @@ def compute_accuracy(predictions, labels):
     return labels[predictions.ravel() < 0.3].mean()
 
 
-def create():
+def create(param_dict):
     # network definition
-    base_network = create_base_network_with_embedding()
+    base_network = create_base_network_with_embedding(param_dict)
 
     input_a = Input(shape=INPUT_SHAPE)
     input_b = Input(shape=INPUT_SHAPE)
@@ -167,9 +215,9 @@ def get_data():
     return tr_pairs, tr_y, te_pairs, te_y
 
 
-def train():
+def train(param_dict, save=True):
 
-    model = create()
+    model = create(param_dict)
 
     if OPTIMIZER is 'sgd':
         opt = SGD(lr=LEARNING_RATE)
@@ -184,16 +232,17 @@ def train():
               batch_size=128,
               nb_epoch=NB_EPOCH)
 
-    # save as JSON
-    json_string = model.to_json()
-    with open(ARCHITECTURE_FILE, "w") as file:
-        file.write(json_string)
-    model.save_weights(WEIGHTS_FILE)
+    if save:
+        # save as JSON
+        json_string = model.to_json()
+        with open(ARCHITECTURE_FILE, "w") as file:
+            file.write(json_string)
+        model.save_weights(WEIGHTS_FILE)
 
     return model
 
 
-def maybe_train():
+def maybe_train(param_dict):
     """
     Tries to load a trained model from disk but trains a new one
     if we can't load it from disk.
@@ -219,7 +268,7 @@ def maybe_train():
 
     except Exception:
         print("Unable to load model from disk. Training a new one")
-        return train()
+        return train(param_dict)
 
 def get_embedding_function(trained_model):
     """
@@ -236,6 +285,16 @@ def get_embedding_function(trained_model):
     embedding_function = K.function([embedding.layers[0].input, K.learning_phase()], embedding.layers[-1].output)
 
     return embedding_function
+
+
+def compute_auc_score(model, te_pairs, te_y):
+    """
+    This is the best measure of how the model is performing
+    :param model:
+    :return:
+    """
+    pred = 1 - model.predict([te_pairs[:, 0], te_pairs[:, 1]])[:, 0]
+    return roc_auc_score(te_y, pred)
 
 
 
@@ -268,19 +327,25 @@ if __name__ == '__main__':
 
     tr_pairs, tr_y, te_pairs, te_y = get_data()
 
-    # # compute final accuracy on training and test sets
-    # pred = model.predict([tr_pairs[:, 0], tr_pairs[:, 1]])
-    # tr_acc = compute_accuracy(pred, tr_y)
-    # pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
-    # te_acc = compute_accuracy(pred, te_y)
-    #
-    # print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
-    # print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
+    param_dict = {
+        'embedding_dim': EMBEDDING_DIM
+    }
 
-    model = maybe_train()
+    model = maybe_train(param_dict)
+    # compute final accuracy on training and test sets
+    pred = model.predict([tr_pairs[:, 0], tr_pairs[:, 1]])
+    tr_acc = compute_accuracy(pred, tr_y)
+    pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
+    te_acc = compute_accuracy(pred, te_y)
+
+    print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
+    print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
+
     f = get_embedding_function(model)
 
     X, subject, activity_one_hot, feature_names = data_source.get_timeseries_data()
 
     learning_phase = np.ones(X.shape[0])
-    print (f([X, 1]))
+    print (f([X, 1])[1:5])
+
+    print(compute_auc_score(model, te_pairs, te_y))

@@ -11,11 +11,15 @@ CONVO_DROPOUT_FRACTION = 0.2
 NB_EPOCH = 1
 L1_FILTERS = 2
 L2_FILTERS = 4
+L3_FILTERS = 4
 
 DROPOUT = True
 DROPOUT_FRACTION = 0.2
 # Dimension of the embedding space. Here it is artifically small so we can visulaize it
 EMBEDDING_DIM = 8
+
+CONVO_L2_REGULARIZER = 0.01
+DENSE_L2_REGULARIZER = 0.01
 
 # Learning Rate. Here we make it smaller because we seem to diverge with the normal learning
 # rate and such a small embedding space
@@ -25,3 +29,5 @@ OPTIMIZER = 'rms'
 # Margin for the contrastive loss function.  How far apart two observations from different
 # classes need to be before the error is zero
 MARGIN = 1
+
+FULLY_CONNECTED_SIZE=128
