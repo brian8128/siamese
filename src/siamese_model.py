@@ -93,7 +93,7 @@ def create_base_network(input_shape, param_dict):
     more traditional classification problem
     """
     seq = Sequential()
-    seq.add(Convolution2D(param_dict['c1_filters'], 8, 1,
+    seq.add(Convolution2D(param_dict['c1_filters'], param_dict['c1_width'], 1,
                           border_mode='valid',
                           activation='relu',
                           input_shape=input_shape,
@@ -103,13 +103,14 @@ def create_base_network(input_shape, param_dict):
                           ))
     seq.add(MaxPooling2D(pool_size=(2, 1)))
     seq.add(Dropout(param_dict['c1_dropout']))
-    # seq.add(Convolution2D(L2_FILTERS, 4, 1,
-    #                       border_mode='valid',
-    #                       activation='relu',
-    #                       W_regularizer=l2(CONVO_L2_REGULARIZER),
-    #                       b_regularizer=l2(CONVO_L2_REGULARIZER),
-    #                       ))
-    # seq.add(MaxPooling2D(pool_size=(2, 1)))
+    seq.add(Convolution2D(param_dict['c2_filters'], param_dict['c2_width'], 1,
+                          border_mode='valid',
+                          activation='relu',
+                          W_regularizer=l2(param_dict['c2_W_regularizer']),
+                          b_regularizer=l2(param_dict['c2_b_regularizer']),
+                          ))
+    seq.add(MaxPooling2D(pool_size=(2, 1)))
+    seq.add(Dropout(param_dict['c2_dropout']))
     # seq.add(Convolution2D(L3_FILTERS, 4, 1,
     #                       border_mode='valid',
     #                       activation='relu',
@@ -337,10 +338,6 @@ def compute_auc_score(model, te_pairs, te_y):
 if __name__ == '__main__':
 
     tr_pairs, tr_y, te_pairs, te_y = get_data()
-
-    param_dict = {
-        'embedding_dim': EMBEDDING_DIM
-    }
 
     model = maybe_train(param_dict)
     # compute final accuracy on training and test sets
