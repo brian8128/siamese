@@ -218,7 +218,6 @@ def train(param_dict, save=True):
 
     model = create(param_dict)
 
-
     opt = RMSprop(lr=param_dict['learning_rate'])
     model.compile(loss=contrastive_loss, optimizer=opt, metrics=['accuracy'])
 
