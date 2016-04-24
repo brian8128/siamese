@@ -32,7 +32,7 @@ if __name__ == '__main__':
                     "embedding_W_regularizer": [0, 0.00001, 0.0001, 0.001],
                     "embedding_b_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
                     "margin":            [8, 10, 15],
-                    "epochs":            [50],
+                    "epochs":            [100],
                     "learning_rate":     [0.001, 0.0001, 0.00001]
                   }
 
