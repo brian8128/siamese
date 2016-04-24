@@ -48,9 +48,6 @@ def eucl_dist_output_shape(shapes):
     return shape1
 
 
-
-
-
 def create_pairs(x, y):
     '''Positive and negative pair creation.
     Alternates between positive and negative pairs.
@@ -86,65 +83,77 @@ def create_pairs(x, y):
 
     return np.array(pairs), np.array(labels)
 
-def create_base_network(input_shape, param_dict):
-    """
-    Base network to be shared (eq. to feature extraction).
-    This is shared among the 'siamese' embedding as well as the
-    more traditional classification problem
-    """
-    seq = Sequential()
-    seq.add(Convolution2D(param_dict['c1_filters'], param_dict['c1_width'], 1,
-                          border_mode='valid',
-                          activation='relu',
-                          input_shape=input_shape,
-                          name="input",
-                          W_regularizer = l2(param_dict['c1_W_regularizer']),
-                          b_regularizer = l2(param_dict['c1_b_regularizer']),
-                          ))
-    seq.add(MaxPooling2D(pool_size=(3, 1)))
-    seq.add(Dropout(param_dict['c1_dropout']))
-    if param_dict['c2_filters'] > 0:
-        seq.add(Convolution2D(param_dict['c2_filters'], param_dict['c2_width'], 1,
-                              border_mode='valid',
-                              activation='relu',
-                              W_regularizer=l2(param_dict['c2_W_regularizer']),
-                              b_regularizer=l2(param_dict['c2_b_regularizer']),
-                              ))
-        seq.add(MaxPooling2D(pool_size=(3, 1)))
-        seq.add(Dropout(param_dict['c2_dropout']))
 
-    seq.add(Flatten())
-    seq.add(Dense(param_dict['d1_size'], activation='relu',
-                  W_regularizer=l2(param_dict['d1_W_regularizer']),
-                  b_regularizer=l2(param_dict['d1_b_regularizer']),
-                  ))
-    seq.add(Dropout(param_dict['d1_dropout']))
-    seq.add(Dense(param_dict['d2_size'], activation='relu',
-                  W_regularizer=l2(param_dict['d2_W_regularizer']),
-                  b_regularizer=l2(param_dict['d2_b_regularizer']),
-                  ))
-    seq.add(Dropout(param_dict['d2_dropout']))
-
-    return seq
-
-
-def create_base_network_with_embedding(param_dict):
+def create_base_network(
+                    c1_filters,
+                    c1_W_regularizer,
+                    c1_b_regularizer,
+                    c1_dropout,
+                    c1_width,
+                    c2_filters,
+                    c2_W_regularizer,
+                    c2_b_regularizer,
+                    c2_dropout,
+                    c2_width,
+                    d1_size,
+                    d1_W_regularizer,
+                    d1_b_regularizer,
+                    d1_dropout,
+                    d2_size,
+                    d2_W_regularizer,
+                    d2_b_regularizer,
+                    d2_dropout,
+                    embedding_dim,
+                    embedding_W_regularizer,
+                    embedding_b_regularizer,
+                    margin,
+                    epochs,
+                    learning_rate):
     """
     Take the base network and add an embedding layer
     """
+    seq = Sequential()
+    seq.add(Convolution2D(c1_filters, c1_width, 1,
+                          border_mode='valid',
+                          activation='relu',
+                          input_shape=INPUT_SHAPE,
+                          name="input",
+                          W_regularizer=l2(c1_W_regularizer),
+                          b_regularizer=l2(c1_b_regularizer),
+                          ))
+    seq.add(MaxPooling2D(pool_size=(3, 1)))
+    seq.add(Dropout(c1_dropout))
+    if c2_filters > 0:
+        seq.add(Convolution2D(c2_filters, c2_width, 1,
+                              border_mode='valid',
+                              activation='relu',
+                              W_regularizer=l2(c2_W_regularizer),
+                              b_regularizer=l2(c2_b_regularizer),
+                              ))
+        seq.add(MaxPooling2D(pool_size=(3, 1)))
+        seq.add(Dropout(c2_dropout))
 
-    # Borrow the base network from the activity prediction model
-    base_network = create_base_network(INPUT_SHAPE, param_dict)
+    seq.add(Flatten())
+    seq.add(Dense(d1_size, activation='relu',
+                  W_regularizer=l2(d1_W_regularizer),
+                  b_regularizer=l2(d1_b_regularizer),
+                  ))
+    seq.add(Dropout(d1_dropout))
+    seq.add(Dense(d2_size, activation='relu',
+                  W_regularizer=l2(d2_W_regularizer),
+                  b_regularizer=l2(d2_b_regularizer),
+                  ))
+    seq.add(Dropout(d2_dropout))
 
-    embedding = Dense(param_dict['embedding_dim'], activation='linear',
-                      W_regularizer=l2(param_dict['embedding_W_regularizer']),
-                      b_regularizer=l2(param_dict['embedding_b_regularizer']),
+    embedding = Dense(embedding_dim, activation='linear',
+                      W_regularizer=l2(embedding_W_regularizer),
+                      b_regularizer=l2(embedding_b_regularizer),
                       name='embedding'
                       )
 
-    base_network.add(embedding)
+    seq.add(embedding)
 
-    return base_network
+    return seq
 
 
 def compute_accuracy(predictions, labels):
@@ -162,9 +171,55 @@ def compute_accuracy(predictions, labels):
     return labels[predictions.ravel() < 0.3].mean()
 
 
-def create(param_dict):
+def create(c1_filters,
+                    c1_W_regularizer,
+                    c1_b_regularizer,
+                    c1_dropout,
+                    c1_width,
+                    c2_filters,
+                    c2_W_regularizer,
+                    c2_b_regularizer,
+                    c2_dropout,
+                    c2_width,
+                    d1_size,
+                    d1_W_regularizer,
+                    d1_b_regularizer,
+                    d1_dropout,
+                    d2_size,
+                    d2_W_regularizer,
+                    d2_b_regularizer,
+                    d2_dropout,
+                    embedding_dim,
+                    embedding_W_regularizer,
+                    embedding_b_regularizer,
+                    margin,
+                    epochs,
+                    learning_rate):
     # network definition
-    base_network = create_base_network_with_embedding(param_dict)
+    base_network = create_base_network(c1_filters,
+                    c1_W_regularizer,
+                    c1_b_regularizer,
+                    c1_dropout,
+                    c1_width,
+                    c2_filters,
+                    c2_W_regularizer,
+                    c2_b_regularizer,
+                    c2_dropout,
+                    c2_width,
+                    d1_size,
+                    d1_W_regularizer,
+                    d1_b_regularizer,
+                    d1_dropout,
+                    d2_size,
+                    d2_W_regularizer,
+                    d2_b_regularizer,
+                    d2_dropout,
+                    embedding_dim,
+                    embedding_W_regularizer,
+                    embedding_b_regularizer,
+                    margin,
+                    epochs,
+                    learning_rate)
 
     input_a = Input(shape=INPUT_SHAPE)
     input_b = Input(shape=INPUT_SHAPE)
@@ -241,44 +296,6 @@ def train(param_dict, save=True):
     return model
 
 
-def maybe_train(param_dict):
-    """
-    Tries to load a trained model from disk but trains a new one
-    if we can't load it from disk.
-    :return: trained model
-    """
-
-    def contrastive_loss(y, d):
-        '''Contrastive loss from Hadsell-et-al.'06
-        http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
-
-        We want y and d to be different.
-        Loss is 0 if y = 1 and d = 0
-        Loss is 1 if y=d=1 or y=d=0
-        '''
-        margin = param_dict['margin']
-        return K.mean(y * K.square(d) + (1 - y) * K.square(K.maximum(margin - d, 0)))
-
-    try:
-        if os.getenv('FORCE_TRAIN', "FALSE").lower() == 'true':
-            # Skip down to the except block
-            # Ugly - how to make this better?
-            raise Exception()
-
-        print("attempting to load model from disk")
-        with open(ARCHITECTURE_FILE, "r") as file:
-            json_string = file.read()
-        model = model_from_json(json_string)
-        opt = RMSprop(lr=LEARNING_RATE)
-        model.compile(loss=contrastive_loss, optimizer=opt, metrics=['accuracy'])
-        model.load_weights(WEIGHTS_FILE)
-
-        print("Successfully loaded model from disk. No training needed.")
-        return model
-
-    except Exception:
-        print("Unable to load model from disk. Training a new one")
-        return train(param_dict)
 
 def get_embedding_function(trained_model):
     """

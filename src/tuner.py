@@ -1,6 +1,8 @@
 import random
 
 from src import siamese_model
+from keras.wrappers.scikit_learn import KerasClassifier
+
 
 from settings import PROJECT_HOME
 
