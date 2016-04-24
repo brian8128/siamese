@@ -32,7 +32,8 @@ if __name__ == '__main__':
                     "embedding_W_regularizer": [0, 0.00001, 0.0001, 0.001],
                     "embedding_b_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
                     "margin":            [1, 10],
-                    "epochs":            [50]
+                    "epochs":            [50],
+                    "learning_rate":     [0.001, 0.0001, 0.00001]
                   }
 
     with open("{}/tuner_output/model_info.csv".format(PROJECT_HOME), 'a') as f:

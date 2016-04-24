@@ -26,8 +26,7 @@ from keras.regularizers import l2
 from keras.layers import Input
 from keras.callbacks import EarlyStopping
 
-from settings import NB_EPOCH, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, \
-    MARGIN, INPUT_SHAPE, PROJECT_HOME
+from settings import  OPTIMIZER, INPUT_SHAPE, PROJECT_HOME
 from keras.models import model_from_json
 
 from src import data_source
@@ -219,10 +218,8 @@ def train(param_dict, save=True):
 
     model = create(param_dict)
 
-    if OPTIMIZER is 'sgd':
-        opt = SGD(lr=LEARNING_RATE)
-    else:
-        opt = RMSprop(lr=LEARNING_RATE)
+
+    opt = RMSprop(lr=param_dict['learning_rate'])
     model.compile(loss=contrastive_loss, optimizer=opt, metrics=['accuracy'])
 
     tr_pairs, tr_y, te_pairs, te_y = get_data()
