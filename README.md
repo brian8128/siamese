@@ -144,3 +144,9 @@ STAGE:
 FORCE_TRAIN: 
 
 If false we will attempt to load the model from disk. If true we will train a new model and overwrite the existing model on disk.
+
+To run the tuner:
+
+export PYTHONPATH="${PYTHONPATH}:/home/ubuntu/siamese"
+
+THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 STAGE=prod nohup python src/tuner.py
