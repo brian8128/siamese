@@ -12,12 +12,12 @@ if __name__ == '__main__':
     param_dist = {
                     "c1_filters":       [8, 16, 32],
                     "c1_W_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
-                    "c1_b_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
+                    "c1_b_regularizer": [0.0001, 0.001, 0.01, 0.1],
                     "c1_dropout":       [0, 0, 0.05, 0.1, 0.3],
                     "c1_width":         [5, 10, 20],
                     "c2_filters":       [0, 8, 16, 32], # 0 means no second convolutional layer
                     "c2_W_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
-                    "c2_b_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
+                    "c2_b_regularizer": [0.0001, 0.001, 0.01, 0.1],
                     "c2_dropout":       [0, 0.05, 0.1],
                     "c2_width":         [3, 5, 8],
                     "d1_size":          [128],
@@ -31,7 +31,7 @@ if __name__ == '__main__':
                     "embedding_dim":    [16, 64],
                     "embedding_W_regularizer": [0, 0.00001, 0.0001, 0.001],
                     "embedding_b_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
-                    "margin":            [1, 10],
+                    "margin":            [8, 10, 15],
                     "epochs":            [50],
                     "learning_rate":     [0.001, 0.0001, 0.00001]
                   }
