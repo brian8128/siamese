@@ -24,6 +24,7 @@ from keras.optimizers import SGD, RMSprop
 from keras import backend as K
 from keras.regularizers import l2
 from keras.layers import Input
+from keras.callbacks import EarlyStopping
 
 from settings import NB_EPOCH, EMBEDDING_DIM, LEARNING_RATE, OPTIMIZER, \
     MARGIN, INPUT_SHAPE, PROJECT_HOME
@@ -101,31 +102,29 @@ def create_base_network(input_shape, param_dict):
                           W_regularizer = l2(param_dict['c1_W_regularizer']),
                           b_regularizer = l2(param_dict['c1_b_regularizer']),
                           ))
-    seq.add(MaxPooling2D(pool_size=(2, 1)))
+    seq.add(MaxPooling2D(pool_size=(3, 1)))
     seq.add(Dropout(param_dict['c1_dropout']))
-    seq.add(Convolution2D(param_dict['c2_filters'], param_dict['c2_width'], 1,
-                          border_mode='valid',
-                          activation='relu',
-                          W_regularizer=l2(param_dict['c2_W_regularizer']),
-                          b_regularizer=l2(param_dict['c2_b_regularizer']),
-                          ))
-    seq.add(MaxPooling2D(pool_size=(2, 1)))
-    seq.add(Dropout(param_dict['c2_dropout']))
-    # seq.add(Convolution2D(L3_FILTERS, 4, 1,
-    #                       border_mode='valid',
-    #                       activation='relu',
-    #                       W_regularizer=l2(0.001),
-    #                       b_regularizer=l2(0.001),
-    #                       ))
-    #
-    # seq.add(MaxPooling2D(pool_size=(2, 1)))
-    # seq.add(Dropout(CONVO_DROPOUT_FRACTION))
+    if param_dict['c2_filters'] > 0:
+        seq.add(Convolution2D(param_dict['c2_filters'], param_dict['c2_width'], 1,
+                              border_mode='valid',
+                              activation='relu',
+                              W_regularizer=l2(param_dict['c2_W_regularizer']),
+                              b_regularizer=l2(param_dict['c2_b_regularizer']),
+                              ))
+        seq.add(MaxPooling2D(pool_size=(3, 1)))
+        seq.add(Dropout(param_dict['c2_dropout']))
+
     seq.add(Flatten())
     seq.add(Dense(param_dict['d1_size'], activation='relu',
                   W_regularizer=l2(param_dict['d1_W_regularizer']),
                   b_regularizer=l2(param_dict['d1_b_regularizer']),
                   ))
     seq.add(Dropout(param_dict['d1_dropout']))
+    seq.add(Dense(param_dict['d2_size'], activation='relu',
+                  W_regularizer=l2(param_dict['d2_W_regularizer']),
+                  b_regularizer=l2(param_dict['d2_b_regularizer']),
+                  ))
+    seq.add(Dropout(param_dict['d2_dropout']))
 
     return seq
 
@@ -228,10 +227,13 @@ def train(param_dict, save=True):
 
     tr_pairs, tr_y, te_pairs, te_y = get_data()
 
+    early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=0, mode='auto')
+
     model.fit([tr_pairs[:, 0], tr_pairs[:, 1]], tr_y,
               validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
               batch_size=128,
-              nb_epoch=param_dict['epochs'])
+              nb_epoch=param_dict['epochs'],
+              callbacks=[early_stop])
 
     if save:
         # save as JSON
