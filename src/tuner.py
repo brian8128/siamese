@@ -32,7 +32,7 @@ if __name__ == '__main__':
                     "embedding_W_regularizer": [0, 0.00001, 0.0001, 0.001],
                     "embedding_b_regularizer": [0, 0.0001, 0.001, 0.01, 0.1],
                     "margin":            [8, 10, 15],
-                    "epochs":            [100],
+                    "epochs":            [200],
                     "learning_rate":     [0.001, 0.0001, 0.00001]
                   }
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     tr_pairs, tr_y, te_pairs, te_y = siamese_model.get_data()
 
-    for i in range(100):
+    for i in range(500):
         # Randomly choose a set of parameters
         params = {}
         for k, v in param_dist.iteritems():
