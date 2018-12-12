@@ -28,6 +28,10 @@ We have 3285 training observations and 1387 test observations.
 Subjects wore the phone in a harness around the torso so the phone was in a similar orientation relative to the torso
 for all test subjects.
 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/XOEN9W05_4A/0.jpg)](https://www.youtube.com/watch?v=XOEN9W05_4A&t=36)
+
+https://www.youtube.com/watch?v=XOEN9W05_4A&t=36
+
 ![test subject](images/test_subject.png)
 
 ## Activity Classification
